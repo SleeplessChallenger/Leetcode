@@ -65,7 +65,19 @@ class Solution:
                     return False
                     
         return len(stack) == 0
-            
+
+# 4. easy - group anagrams
+# Time: O(w * n * log n)
+# w - number of words; n - longest word
+class Solution:
+    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+        ht = {}
         
-        
-        
+        for s in strs:
+            string = ''.join(sorted(s))
+            if string not in ht:
+                ht[string] = []
+                
+            ht[string].append(s)
+    
+        return list(ht.values())
