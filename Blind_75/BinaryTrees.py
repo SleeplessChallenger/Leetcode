@@ -65,3 +65,54 @@ class Solution:
         
         return True
             
+# 4. easy - Lowest Common Ancestor of a Binary Search Tree
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    # recursive
+    # assuming `root` isn't None in all test cases
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        if root.val >= p.val and root.val <= q.val or\
+            root.val <= p.val and root.val >= q.val:
+            # after `or` will help when: root = 2 p = 2 q = 1
+            # => not always p < q!
+            return root
+        # if tree is smaller than both of nodes ->
+        # continue in .right
+        if root.val < p.val and root.val < q.val:
+            return self.lowestCommonAncestor(root.right, p, q)
+        # if tree is greater than both of nodes ->
+        #  continue  in .left
+        if root.val > p.val and root.val > q.val:
+            return self.lowestCommonAncestor(root.left, p, q)
+    
+    # iterative
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        while root:
+            if root.val > p.val and root.val > q.val:
+                root = root.left
+            elif root.val < p.val and root.val < q.val:
+                root = root.right
+            else:
+                return  root
+
+
+# 5. medium - Validate BST
+class Solution:
+    def isValidBST(self, root: TreeNode) -> bool:
+        return self.validateTree(root, float('-inf'), float('inf'))
+    
+    def validateTree(self, node, lower, upper):
+        if node is None:
+            return True
+        
+        if node.val <= lower or node.val >= upper:
+            return False
+        
+        leftNode = self.validateTree(node.left, lower, node.val)
+        return leftNode and self.validateTree(node.right, node.val, upper)
