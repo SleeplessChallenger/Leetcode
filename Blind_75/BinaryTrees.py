@@ -102,7 +102,47 @@ class Solution:
                 return  root
 
 
-# 5. medium - Validate BST
+# 5. easy - Subtree of Another Tree
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def isSubtree(self, root: TreeNode, subRoot: TreeNode) -> bool:
+        # 1. if subtree is None => True as None 
+        # can be a subtree of any tree
+        # 2. if subtree is not None AND main tree
+        # is None -> False
+        # 3. if both are present -> True: check if 2 trees
+        # are identical
+        # 4. else: traverse .left and .right sides of the main tree
+        # to check if some subtrees are equal to our subtree
+        
+        if subRoot is None:
+            return True
+        if root is None:
+            return False
+        
+        if self.identicalTrees(root, subRoot):
+            return True
+        
+        return self.isSubtree(root.left, subRoot) or\
+            self.isSubtree(root.right, subRoot)
+    
+    def identicalTrees(self, root, subRoot):
+        if root is None and subRoot is None:
+            return True
+        if root is None or subRoot is None:
+            return False
+        if root.val != subRoot.val:
+            return False
+        return self.identicalTrees(root.left, subRoot.left) and\
+            self.identicalTrees(root.right, subRoot.right)
+
+
+# 6. medium - Validate BST
 class Solution:
     def isValidBST(self, root: TreeNode) -> bool:
         return self.validateTree(root, float('-inf'), float('inf'))
@@ -116,3 +156,4 @@ class Solution:
         
         leftNode = self.validateTree(node.left, lower, node.val)
         return leftNode and self.validateTree(node.right, node.val, upper)
+   
