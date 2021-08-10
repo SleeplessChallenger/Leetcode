@@ -96,3 +96,172 @@ class Solution:
                 digits[i] += carry
         
         return digits
+
+# 5. Single Number
+class Solution:
+    def singleNumber(self, nums: List[int]) -> int:
+        xor = 0
+        for num in nums:
+            xor ^= num
+        
+        return xor
+
+# 6. Move Zeroes
+class Solution:
+    def moveZeroes(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+      # Time: O(n) Space: O(n)
+      #   arr = [0 for _ in nums]
+      #   i = 0
+      #   for num in nums:
+      #       if num != 0:
+      #           arr[i] = num
+      #           i += 1
+                
+      #   return arr
+
+        # Time: O(n) Space: O(1)
+        idxNotZero = 0
+        i = 0
+        while i < len(nums):
+            if nums[i] != 0:
+                nums[idxNotZero] = nums[i]
+                idxNotZero += 1
+            
+            i += 1
+        
+        while idxNotZero != len(nums):
+            nums[idxNotZero] = 0
+            idxNotZero += 1
+
+# 7. Rotate Array
+class Solution:
+    def rotate(self, nums: List[int], k: int) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        # Time: O(n) Space: O(1)
+        k = k % len(nums)
+        
+        i = 0
+        j = len(nums) - 1
+        while i < j:
+            nums[i], nums[j] = nums[j], nums[i]
+            i += 1
+            j -= 1
+
+        i = 0
+        j = k - 1
+        while i < j:
+            nums[i], nums[j] = nums[j], nums[i]
+            i += 1
+            j -= 1
+
+        i = k
+        j = len(nums) - 1
+        while i < j:
+            nums[i], nums[j] = nums[j], nums[i]
+            i += 1
+            j -= 1
+
+# 8. Valid Sudoku
+class Solution:
+    def isValidSudoku(self, board: List[List[str]]) -> bool:
+        for i in range(len(board)):
+            for j in range(len(board)):
+                num = board[i][j]
+                if num == '.':
+                    continue
+                
+                result = self.isValid(num, i, j, board)
+                if not result:
+                    return False
+
+        return True
+    
+    def isValid(self, num, row, col, board):
+        # in the following 2 checks we continue
+        # if row == curr row or col == curr col
+        for i in range(len(board[row])):
+            if i == col:
+                continue
+            elif board[row][i] == num:
+                return False
+            
+        for j in range(len(board)):
+            if j ==  row:
+                continue
+            elif board[j][col] == num:
+                return False
+        
+        rowGrid = row // 3
+        colGrid = col // 3
+        
+        for i in range(3):
+            for j in range(3):
+                rowCheck = rowGrid * 3 + i
+                colCheck = colGrid * 3 + j
+                # if pos. of current number => skip
+                if rowCheck == row and colCheck == col:
+                    continue
+                
+                
+                figure = board[rowCheck][colCheck]
+                if figure == '.':
+                    continue
+                
+                if num == figure:
+                    return False
+        
+        return True
+
+# 9. Intersection of Two Arrays II
+class Solution:
+    # Time: O(n)  Space: O(n)
+    def intersect(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        ht1 = {}
+        ht2 = {}
+        
+        for num in nums1:
+            if num not in ht1:
+                ht1[num] = 0
+            ht1[num] += 1
+        
+        for num in nums2:
+            if num  not in ht2:
+                ht2[num] = 0
+            ht2[num] += 1
+        
+        result = []
+        for i, j in ht1.items():
+            if i in ht2:
+                # take smallest of two values
+                count = ht2[i] if ht2[i] < j else j
+                while count != 0:
+                    result.append(i)
+                    count -= 1
+        
+        return result
+    
+    # Time: O(n*log n) Space: O(1)
+    def intersect(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        nums1.sort()
+        nums2.sort()
+        
+        first = 0
+        second = 0
+        result  = []
+        
+        while first < len(nums1) and second < len(nums2):
+            if nums1[first] > nums2[second]:
+                second += 1
+            elif nums1[first] < nums2[second]:
+                first += 1
+            else:
+                result.append(nums1[first])
+                first += 1
+                second += 1
+        
+        return result
