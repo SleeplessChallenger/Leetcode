@@ -25,6 +25,8 @@ class Solution:
         	ht[nums[i]] = i
 
 # 2. easy  - Maximum Subarray
+
+# Kadane's Algo
 class Solution:
     def maxSubArray(self, nums: List[int]) -> int:
         # don't sort
@@ -35,7 +37,18 @@ class Solution:
             total = max(temp, total)
         
         return total
-+ look at  d. & c.
+
+# DP
+def maxSubArray(self, nums: List[int]) -> int:
+    dp = [0 for _ in nums]
+    dp[0] = nums[0]
+    for i in range(1, len(nums)):
+        if dp[i - 1] + nums[i] > nums[i]:
+            dp[i] = dp[i - 1] + nums[i]
+        else:
+            dp[i] = nums[i]
+
+    return max(dp)
 
 # 3. easy - Contains duplicate
 class Solution:
