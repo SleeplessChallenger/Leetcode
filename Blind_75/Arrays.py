@@ -50,6 +50,35 @@ def maxSubArray(self, nums: List[int]) -> int:
 
     return max(dp)
 
+# D & C
+class Solution:
+    def maxSubArray(self, nums: List[int]) -> int:
+        if len(nums) == 1:
+            return nums[0]
+
+        middle = len(nums) // 2
+        leftPart = self.maxSubArray(nums[:middle])
+        rightPart = self.maxSubArray(nums[middle:])
+        bothParts = self.findMax(nums, middle)
+        # opt between single numbers (leftPart/rightPart
+        # or the best sum out of them)
+        return max(leftPart, rightPart, bothParts)
+
+    def findMax(self, arr, middle):
+        temp1 = temp2 = 0
+        sum1 = float('-inf')
+        
+        for i in range(middle - 1, -1, -1):
+            temp1 += arr[i]
+            sum1 = max(sum1, temp1)
+
+        sum2 = float('-inf')
+        for j in range(middle, len(arr)):
+            temp2 += arr[j]
+            sum2 = max(sum2, temp2)
+
+        return sum1 + sum2
+
 # 3. easy - Contains duplicate
 class Solution:
     def containsDuplicate(self, nums: List[int]) -> bool:
