@@ -27,3 +27,37 @@ class MinStack:
 
     def getMin(self) -> int:
         return self.MinStack[-1]['min']
+
+# 2. Shuffle an Array
+class Solution:
+
+    def __init__(self, nums: List[int]):
+        self.nums = nums
+        self.prev = list(nums)
+        # `list()` allows to create new list
+        # whilst simple `=` will make those
+        # lists interlinked
+        
+    def reset(self) -> List[int]:
+        """
+        Resets the array to its original configuration and return it.
+        """
+        self.nums = self.prev
+        self.prev = list(self.prev)
+        # here the same case as in `__ini__`
+        return self.nums
+
+    def shuffle(self) -> List[int]:
+        """
+        Returns a random shuffling of the array.
+        """    
+        for i in range(len(self.nums)):
+            idx = random.randrange(i, len(self.nums))
+            self.nums[i], self.nums[idx] = self.nums[idx], self.nums[i]
+        
+        return self.nums
+
+# Your Solution object will be instantiated and called as such:
+# obj = Solution(nums)
+# param_1 = obj.reset()
+# param_2 = obj.shuffle()
