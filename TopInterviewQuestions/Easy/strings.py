@@ -106,6 +106,28 @@ class Solution:
 
 # 6. Return the integer as the final result.
 
-
-
-
+# 7. Count and Say
+class Solution:
+    def countAndSay(self, n: int) -> str:
+        if n == '0':
+            return ""
+        if n == '1':
+            return "1"
+        
+        result = '1'
+        for i in range(n - 1):
+            prev, count = result[0], 0
+            temp = ""
+            
+            for j in result:
+                if j == prev:
+                    count += 1
+                else:
+                    temp += str(count) + prev
+                    prev = j
+                    count = 1
+            
+            temp += str(count) + prev
+            result = temp
+        
+        return result
