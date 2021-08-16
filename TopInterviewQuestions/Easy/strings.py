@@ -106,6 +106,107 @@ class Solution:
 
 # 6. Return the integer as the final result.
 
+# 5. Implement strStr()
+
+class Solution:
+    
+    # One-liner
+    def strStr(self, haystack: str, needle: str) -> int:
+        return haystack.find(needle)
+    
+    
+    # KMP
+    def strStr(self, haystack: str, needle: str) -> int:
+        if len(haystack) ==  0 and len(needle) ==  0:
+            return 0
+        if len(needle) == 0:
+            return 0
+        
+        pattern = self.buildPattern(needle)
+        return self.isValid(pattern, haystack, needle)
+        
+    def buildPattern(self, needle):
+        pattern = [-1 for _ in needle]
+        i = 1
+        j = 0
+        while i < len(needle):
+            if needle[i] == needle[j]:
+                pattern[i] = j
+                i += 1
+                j += 1
+            elif j > 0:
+                j = pattern[j - 1] + 1
+            else:
+                i += 1
+                
+        return pattern
+    
+    def isValid(self, pattern, big, small):
+        i = j = 0
+        while i + len(small) - j <= len(big):
+            if big[i] == small[j]:
+                if j == len(small) - 1:
+                    return i - j
+                i += 1
+                j += 1
+            elif j > 0:
+                j = pattern[j - 1] + 1
+            else:
+                i += 1
+        return -1
+
+# 6. Longest Common Prefix
+class Solution:
+    # Horizontal scanning
+    # 1. take first word from the list
+    # 2. first iteration will skip, but in the second
+    # we'll cut by one from the end if new word doesn't
+    # start with all the substring of the old word.
+    # 3. old word will persist through all words in the list
+    # hence in result we'll get desired output (prefix )
+    def longestCommonPrefix(self, strs: List[str]) -> str:
+        if len(strs) == 0:
+            return ""
+        
+        prefix = strs[0]
+        for idx in range(1, len(strs)):
+            string = strs[idx]
+            while string.startswith(prefix) == False:
+                prefix = prefix[:-1]
+        
+        return prefix
+    
+    # Divide & Coqnuer
+    # Time: O(m * logN) where m is the largest string
+    # and logN is a recursive call stack
+    def longestCommonPrefix(self, strs: List[str]) -> str:
+        if len(strs) == 0 or len(strs) == 1:
+            return strs[0]
+        
+        return self.divide_conquer(strs)
+        
+    def divide_conquer(self, strings):
+        if len(strings) == 1:
+            return strings[0]
+        
+        leftPart = self.divide_conquer(strings[:len(strings) - 1])
+        rightPart = self.divide_conquer(strings[len(strings) - 1:])
+        return self.gist_function(leftPart, rightPart)
+        # `return` from here will give common prefix
+        # to leftPart
+    
+    def gist_function(self, left, right):
+        min_length = min(len(left), len(right))
+        # min_length == len(smallest) - 1
+        # => we can return :idx as this idx
+        # we'll be out of range already
+        # and python is exclusive
+        for i in range(min_length): # O(m)
+            if left[i] != right[i]:
+                return left[:i]
+     
+        return left[:min_length]
+
 # 7. Count and Say
 class Solution:
     def countAndSay(self, n: int) -> str:
