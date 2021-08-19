@@ -81,3 +81,25 @@ class Solution:
             ht[string].append(s)
     
         return list(ht.values())
+
+# Medium chunk
+
+# 1. medium - Longest Palindromic Substring
+class Solution:
+    def longestPalindrome(self, s: str) -> str:
+        longest = [0, 1]
+        for idx in range(1, len(s)):
+            first_case = self.check_substring(idx - 1, idx + 1, s)
+            second_case = self.check_substring(idx - 1, idx, s)
+            longest_case = max(first_case, second_case, key=lambda x: x[1] - x[0])
+            longest = max(longest_case, longest, key=lambda x: x[1] - x[0])
+        return s[longest[0]:longest[1]]
+
+    def check_substring(self, idx1, idx2, string):
+        while idx1 >= 0 and idx2 < len(string):
+            if string[idx1] != string[idx2]:
+                break
+            idx1 -= 1
+            idx2 += 1
+            
+        return [idx1 + 1, idx2]
