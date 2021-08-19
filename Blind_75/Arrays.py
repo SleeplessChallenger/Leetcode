@@ -113,3 +113,31 @@ class Solution:
                     maxProfit = prices[i] - minPrice
             
             return maxProfit
+
+# Medium chunk
+
+# 1. medium - 3Sum
+class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        if len(nums) < 3:
+            return []
+        
+        nums.sort()
+        target = 0
+        ht = {}
+        
+        for i in range(len(nums) - 2):
+            left = i + 1
+            right = len(nums) - 1
+            while left < right:
+                totalSum = nums[i] + nums[left] + nums[right]
+                if totalSum == target:
+                    ht[f"{nums[i]}, {nums[left]}, {nums[right]}"] = [nums[i], nums[left], nums[right]]
+                    left += 1
+                    right -= 1
+                elif totalSum > target:
+                    right -= 1
+                else:
+                    left += 1
+        
+        return list(ht.values())
