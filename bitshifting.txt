@@ -1,0 +1,93 @@
+Overall explanation:
+https://www.youtube.com/watch?v=qq64FrA2UXQ
+
+Explanation of mask:
+https://leetcode.com/problems/sum-of-two-integers/discuss/489210/Read-this-if-you-want-to-learn-about-masks
+
+# representation of different numbers
+9 
+    
+8 4 2 1
+1 0 0 1
+
+25
+
+32 16 8 4 2 1
+X  1  1 0 0 1
+
+# addition of 2 numbers
+# 1. present them via binary
+123
+
+ 128 64 32 16 8 4 2 1
+   X 1   1  1 1 0 1 1
+
+39
+    32 16 8 4 2 1
+     1  0 0 1 1 1
+
+# 2. make the addition
+1 1 1 1 0 1 1
+             +
+  1 0 0 1 1 1
+_______________
+1 0 1 0 0 0 1 0
+
+Ex: 1 + 1 = 2. What is 2 in binary? Look below. It's 
+1 0 => put 0 and put 1 as carry.
+1 + 1 + 1 (carry) = 3. What is 3 in binary? 1 1 =>
+put 1 and take 1 as carry.
+    
+3 
+    2 1
+    1 1
+
+2
+    2 1
+    1 0
+
+# Bitwise operations
+
+a) & == and
+1 & 1 = 1
+1 & 0 = 0 or 0 & 1 = 0
+0 & 0 = 0
+
+& shows `carry needed` positions.
+And carry will be applied one position to the left:
+    1
+    11
+    11
+    __
+
+
+<< means shifting to the left
+
+b) XOR - exclusive or (both cannot be true).
+It is used for addition (also for addition within the operation).
+So, instead of traditional + we use ^
+
+1 ^ 1 = 0 (both cannot be true)
+0 ^ 1 = 1
+1 ^ 0 = 1
+0 ^ 0 = 0
+
+
+c) << - shifitng to the left
+it helps to turn carry to what you'll apply in the next iteration 
+
+   111
+    111
+    111
+    ___
+    000
+
+1 ^ 1 = 0; carry = 1
+1 ^ 1 = 0; carry = 1
+
+
+Steps for "Sum without +":
+
+1. find carry with &
+2. addition with ^
+3. << carry as it'll be applied to the left
