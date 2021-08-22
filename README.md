@@ -7,3 +7,6 @@
 2. Top Interview Questions consists of 3 folders: easy/medium/hard.
 The problems are picked by Leetcode.
   - In this repo I didn't put questions that overlap with Blind 75 folder
+
+3. "seanprashad" LC list
+ - In this repo I didn't put questions that overlap with other two folders from above
