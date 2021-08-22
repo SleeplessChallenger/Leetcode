@@ -1,0 +1,2 @@
+In this repo you can find my solutions to Leetcode "seanprashad" LC list.
+Important: I didn't put questions that overlap with Blind 75 folder or TOP interview questions
