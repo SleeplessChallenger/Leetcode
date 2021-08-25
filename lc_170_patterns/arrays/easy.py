@@ -83,3 +83,22 @@ class Solution:
                 right = middle
         
         return left
+
+ # 4. Squares of a Sorted Array
+class Solution:
+    def sortedSquares(self, nums: List[int]) -> List[int]:
+        arr = [0 for _ in nums]
+        left = 0
+        right = len(nums) - 1
+        
+        for i in reversed(range(len(nums))):
+            leftNum = nums[left]
+            rightNum = nums[right]
+            if abs(leftNum) > abs(rightNum):
+                arr[i] = leftNum * leftNum
+                left += 1
+            else:
+                arr[i] = rightNum * rightNum
+                right -= 1
+        
+        return arr
