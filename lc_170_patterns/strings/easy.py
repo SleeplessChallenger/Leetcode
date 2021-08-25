@@ -73,12 +73,12 @@ class Solution:
                 else:
                     break
             
-            # at first valid indicies check
-            # as we can get error otherwise
+            # if at least one of the indicies isn't valid -> skip this `if`
             if i >= 0 and j >= 0 and s[i] != t[j]:
                 return False
             
             if (i >= 0) != (j >= 0):
+                # "bxj##tw", "bxj###tw"
                 return False
             
             i = i - 1
