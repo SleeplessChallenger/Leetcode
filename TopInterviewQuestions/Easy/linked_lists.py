@@ -67,3 +67,27 @@ class Solution:
             curr = nx
         
         return prev
+
+# 4. Remove Nth Node From End of List
+class Solution:
+    def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
+        length = 0
+        curr = head
+        newHead = head
+        while length < n:
+            curr = curr.next
+            length += 1
+        
+        if curr is None:
+            if head.next is None:
+                return None
+            head.val = head.next.val
+            head.next = head.next.next
+            return head
+        
+        while curr.next:
+            curr = curr.next
+            newHead = newHead.next
+        
+        newHead.next = newHead.next.next
+        return head
