@@ -103,3 +103,23 @@ class Solution:
             idx2 += 1
             
         return [idx1 + 1, idx2]
+
+# 2. Longest Substring Without Repeating Characters
+class Solution:
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        if len(s) == 0:
+            return 0
+        
+        ht = {}
+        longest = [0, 1]
+        start = 0
+        
+        for idx in range(len(s)):
+            letter = s[idx]
+            if letter in ht:
+                start = max(start, ht[letter] + 1)
+            if longest[1] - longest[0] < idx - start + 1:
+                longest = [start, idx + 1]
+            ht[letter] = idx
+        
+        return longest[1] - longest[0]
