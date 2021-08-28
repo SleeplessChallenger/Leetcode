@@ -141,3 +141,40 @@ class Solution:
                     left += 1
         
         return list(ht.values())
+
+# 2. Container With Most Water
+class Solution:
+    # Time: O(n^2) Space: O(1)
+#     def maxArea(self, height: List[int]) -> int:
+#         max_water = float('-inf')
+#         for i in range(len(height)):
+#             for j in range(i + 1, len(height)):
+#                 first_barrier = height[i]
+#                 second_barrier = height[j]
+#                 smallest_barrier = min(first_barrier, second_barrier)
+#                 difference = j - i
+#                 max_water = max(max_water, difference * smallest_barrier)
+        
+#         return max_water
+
+    # Time: O(n) Space: O(1)
+    def maxArea(self, height: List[int]) -> int:
+        left = 0
+        right = len(height) - 1
+        max_water = float('-inf')
+        
+        while left < right:
+            left_value = height[left]
+            right_value = height[right]
+            
+            difference = abs(left - right)
+            smallest = min(left_value, right_value)
+            max_water = max(max_water, difference * smallest)
+            
+            if left_value < right_value:
+                left += 1
+            else:
+                right -= 1
+        
+        return max_water
+   
