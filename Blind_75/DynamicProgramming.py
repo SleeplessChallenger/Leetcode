@@ -45,3 +45,47 @@ class Solution:
             # first = temp
         return second
 
+ # medium chunk
+# 1. Combination Sum
+class Solution:
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        result = []
+        
+        def dfs(idx, curr, total):
+            if total == target:
+                result.append(list(curr))
+                return 
+            
+            elif total > target or idx >= len(candidates):
+                return
+            
+            curr.append(candidates[idx])
+            dfs(idx, curr, total + candidates[idx])
+            
+            curr.pop()
+            dfs(idx + 1, curr, total)
+        
+        dfs(0, [], 0)
+        
+        return result
+    
+    # mine version
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        result = []
+        self.dfs(0, [], 0, result, target, candidates)
+        return result
+    
+    def dfs(self, idx, curr, total, result, target, candidates):
+        if total == target:
+            return True
+        
+        elif total > target or idx >= len(candidates):
+            return False
+        
+        curr.append(candidates[idx])
+        if self.dfs(idx, curr, total + candidates[idx], result, target, candidates):
+            result.append(list(curr))
+        
+        curr.pop()
+        if self.dfs(idx + 1, curr, total, result, target, candidates):
+            result.append(list(curr))
