@@ -174,3 +174,63 @@ class Solution:
         rightNode = self.buildTree(preorder[idx + 1:], inorder[idx + 1:])
         return TreeNode(root, leftNode, rightNode)
  
+# 8. medium - Kth Smallest Element in a BST
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    # brute force
+    def kthSmallest(self, root: TreeNode, k: int) -> int:
+        arr = []
+        def dfs(node, arr):
+            if node.left:
+                dfs(node.left, arr)
+            arr.append(node.val)
+            if node.right:
+                dfs(node.right, arr)
+        dfs(root, arr)
+        # edge case: if `arr = [5] k = 0`,
+        # then arr[0 - 1] still returns desired result
+        # return arr[k - 1]
+    
+        return arr[abs(1 - k)]
+        
+    # optimal
+    def kthSmallest(self, root: TreeNode, k: int) -> int:
+        class_inst = Help(0, None)
+        self.getKsmallest(root, k, class_inst)
+        return class_inst.prev
+    
+    def getKsmallest(self, node, k, class_inst):       
+        if node is None or k == class_inst.idx:
+            return
+
+        self.getKsmallest(node.left, k, class_inst)
+        
+        if class_inst.idx < k:
+            class_inst.idx += 1
+            class_inst.prev = node.val
+            self.getKsmallest(node.right, k, class_inst)
+            
+
+class Help:
+    def __init__(self, idx, prev):
+        self.idx = idx
+        self.prev = prev
+        
+    # iterative
+    def kthSmallest(self, root: TreeNode, k: int) -> int:
+        stack = []
+        while True:
+            while root:
+                stack.append(root)
+                root = root.left
+            root = stack.pop()
+            k -= 1
+            if not k:
+                return root.val
+            root = root.right
+
