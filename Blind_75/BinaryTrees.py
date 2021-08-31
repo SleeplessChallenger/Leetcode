@@ -157,3 +157,20 @@ class Solution:
         leftNode = self.validateTree(node.left, lower, node.val)
         return leftNode and self.validateTree(node.right, node.val, upper)
    
+# 7. medium - Construct Binary Tree from Preorder and Inorder Traversal
+class Solution:
+    def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+        # `not` instead of `is None` as former catches []
+        # whilst latter doesn't
+        if not preorder or not inorder:
+            return None
+        
+        root = preorder[0]
+        idx = 0
+        while inorder[idx] != root:
+            idx += 1
+        
+        leftNode = self.buildTree(preorder[1:idx + 1], inorder[:idx])
+        rightNode = self.buildTree(preorder[idx + 1:], inorder[idx + 1:])
+        return TreeNode(root, leftNode, rightNode)
+ 
