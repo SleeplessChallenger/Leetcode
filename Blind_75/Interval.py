@@ -51,3 +51,24 @@ class Solution:
         # newInterval
         result.append(newInterval)
         return result
+
+# 3. Non-overlapping Intervals
+class Solution:
+    def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:
+        if len(intervals) <= 1:
+            return 0
+        
+        intervals.sort(key=lambda x: x[0])
+        prev = intervals[0][1]
+        
+        count = 0
+        for idx in range(1, len(intervals)):
+            curr = intervals[idx]
+            if curr[0] < prev:
+                count += 1
+                prev = min(prev, curr[1])
+            else:
+            # elif curr[0] >= prev:
+                prev = curr[1]
+        
+        return count
