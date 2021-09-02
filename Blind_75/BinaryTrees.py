@@ -234,3 +234,62 @@ class Help:
                 return root.val
             root = root.right
 
+# 9. medium - Serialize and Deserialize BST
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Codec:
+    '''
+    object of tree isn't integer intself,
+    but class object. Hence if we simply str(node)
+    and then try to decode it => error.
+    Also make pre-order traversal as we're
+    to rebuild the tree further.
+    
+    + I did preorder traversal. Inorder is also
+    possible, especially if combined with binary tree
+    construction method. But here it returns. slightly
+    different variant of Tree: [2, 1] -> [1, None, 2]
+    '''
+
+    def serialize(self, root: TreeNode) -> str:
+        """Encodes a tree to a single string.
+        """
+        if root is None:
+            return ''
+        
+        arr = []
+        self.dfs(root, arr)
+        return '&'.join(arr)
+    
+    def dfs(self, node, arr):
+        arr.append(str(node.val))
+        if node.left:
+            self.dfs(node.left, arr)
+        if node.right:
+            self.dfs(node.right, arr)
+
+    def deserialize(self, ser: str) -> TreeNode:
+        """Decodes your encoded data to tree.
+        """
+        if not ser:
+            return None
+        
+        splitted = ser.split('&')
+        result = list(map(lambda x: int(x), splitted))
+        return self.rebuildTree(result, float('-inf'), float('inf'))
+    
+    def rebuildTree(self, nodes, left, right):
+        if nodes:
+        # to not give None
+            if nodes[0] > left and nodes[0] < right:
+                node_val = nodes.pop(0)
+                node = TreeNode(node_val)
+                node.left = self.rebuildTree(nodes, left, node_val)
+                node.right = self.rebuildTree(nodes, node_val, right)
+                
+                return node
