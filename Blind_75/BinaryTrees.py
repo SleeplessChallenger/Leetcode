@@ -293,3 +293,36 @@ class Codec:
                 node.right = self.rebuildTree(nodes, node_val, right)
                 
                 return node
+
+# 10. medium - Lowest Common Ancestor of a Binary Tree
+class Parent:
+    def __init__(self, par, idx):
+        self.par = par
+        self.idx = idx
+
+    
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        return self.traverse_tree(root, p, q).par
+    
+    def traverse_tree(self, node, p, q):
+        idx = 0
+        leftNode = node.left if node.left else None
+        rightNode = node.right if node.right else None
+        children = [leftNode, rightNode]
+        
+        for child in children:
+            if child is None:
+                continue
+            else:
+                result = self.traverse_tree(child, p, q)
+                if result.par:
+                    return result
+                idx += result.idx
+        
+        if node == p or node == q:
+            idx += 1
+        
+        isParent = node if idx == 2 else None
+        
+        return Parent(isParent, idx)
