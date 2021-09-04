@@ -1,3 +1,20 @@
+# easy chunk
+# 1. Meeting Rooms
+class Solution:
+    def canAttendMeetings(self, intervals: List[List[int]]) -> bool:
+        if len(intervals) <= 1:
+            return True
+        intervals.sort(key=lambda x: x[0])
+        
+        prev = intervals[0]
+        for i in range(1, len(intervals)):
+            curr = intervals[i]
+            if curr[0] < prev[1]:
+                return False
+            prev = curr
+        
+        return True
+
 # medium chunk
 # 1. Merge Intervals
 class Solution:
