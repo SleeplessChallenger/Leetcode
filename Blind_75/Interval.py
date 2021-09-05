@@ -89,3 +89,106 @@ class Solution:
                 prev = curr[1]
         
         return count
+
+# 4. Meeting Rooms 2
+class Solution:
+    # 1. heap
+    def minMeetingRooms(self, intervals: List[List[int]]) -> int:
+        '''
+        Sort by first value to access earliest, but
+        sort in Heap based on last value, i.e. the smallest
+        last will be the first as it does end earlier
+        '''
+        if len(intervals) <= 1:
+            return 1
+        
+        intervals.sort(key=lambda x: x[0])
+        minHeap = Heap([intervals[0]])
+        count = 1
+
+        for idx in range(1, len(intervals)):
+            curr = intervals[idx]
+            
+            if minHeap.peek()[1] > curr[0]:
+                count += 1
+            else:
+                minHeap.remove()
+                
+            minHeap.insert(curr)
+        
+        return count
+
+        
+class Heap:
+    def __init__(self, arr):
+        self.heap = self.buildHeap(arr)
+
+    def buildHeap(self, arr):
+        parentIdx = (len(arr) - 2) // 2
+        for i in reversed(range(parentIdx + 1)):
+            self.siftDown(i, len(arr) - 1, arr)
+        return arr
+    
+    def siftDown(self, idx, length, heap):
+        idxOne = idx * 2 + 1
+        while idxOne <= length:
+            idxTwo = idx * 2 + 2 if idx * 2 + 2 <= length else -1
+            if idxTwo != -1 and heap[idxTwo][1] < heap[idxOne][1]:
+                swap = idxTwo
+            else:
+                swap = idxOne
+            
+            if heap[swap][1] < heap[idx][1]:
+                self.swap_values(swap, idx)
+                idx = swap
+                idxOne = idx * 2 + 1
+            else:
+                return
+                
+    def swap_values(self, i, j):
+        self.heap[i], self.heap[j] = self.heap[j], self.heap[i]
+    
+    def siftUp(self):
+        idx = len(self.heap) - 1
+        while idx > 0:
+            parentIdx = (idx - 1) // 2
+            if self.heap[parentIdx][1] > self.heap[idx][1]:
+                self.swap_values(idx, parentIdx)
+                idx = parentIdx
+            else:
+                return
+        
+    def remove(self):
+        drop = self.heap[0]
+        temp = self.heap.pop()
+        if len(self.heap) > 0:
+            self.heap[0] = temp
+            self.siftDown(0, len(self.heap) - 1, self.heap)
+        return drop
+    
+    def peek(self):
+        return self.heap[0]
+    
+    def insert(self, value):
+        self.heap.append(value)
+        self.siftUp()
+
+        # 2. array
+        def minMeetingRooms(self, intervals: List[List[int]]) -> int:
+            if len(intervals) <= 1:
+                return 1
+            start = sorted(x[0] for x in intervals)
+            end = sorted(x[1] for x in intervals)
+            
+            s = 0
+            e = 0
+            count = 0
+            
+            while s < len(intervals):
+                if start[s] >= end[e]:
+                    count -= 1
+                    e += 1
+                count += 1
+                s += 1
+            
+            return count
