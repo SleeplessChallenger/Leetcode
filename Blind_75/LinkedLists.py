@@ -73,4 +73,50 @@ class Solution:
         
         return l1 if l1.val < l2.val else l2
         
+# medium chunk
+# 1. medium - Reorder List
+
+class Solution:
+    def reorderList(self, head: ListNode) -> None:
+        """
+        Do not return anything, modify head in-place instead.
+        """
+        if head is None or head.next is None:
+            return head
         
+        newHead = self.getHead(head)
+        
+        curr = head
+        
+        while newHead and newHead.next:
+            nx = curr.next
+            nxHead = newHead.next
+            
+            curr.next = newHead
+            newHead.next = nx
+            
+            curr = nx
+            newHead = nxHead
+        
+        
+    def getHead(self, curr):
+        slow = curr
+        fast = curr
+        
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+        
+        return self.reverseList(slow)
+    
+    def reverseList(self, curr):
+        prev, nx = None, None
+        
+        while curr:
+            nx = curr.next
+            curr.next = prev
+            prev = curr
+            curr = nx
+            
+        return prev
+    
