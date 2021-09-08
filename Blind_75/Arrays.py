@@ -178,3 +178,57 @@ class Solution:
         
         return max_water
    
+# 4 Product of Array Except Self
+class Solution:
+    
+    # brute-force
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+        arr = [1 for _ in nums]
+        for idx1 in range(len(nums)):
+            for idx2 in range(len(nums)):
+                if idx1 == idx2:
+                    continue
+                arr[idx1] *= nums[idx2]
+        
+        return arr
+    
+    # more optimal with Space: O(3n)
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+        arr1 = [1 for _ in nums]
+        arr2 = [1 for _ in nums]
+        arr3 = [1 for _ in nums]
+        # to bypass mult. of current
+        # we use `i` in new array and
+        # modify `idx` to include other values
+        idx = 1
+        # during first loop we omit first value
+        # and in the second - last
+        for i in range(len(nums)):
+            arr1[i] = idx
+            idx *= nums[i]
+        
+        idx = 1
+        for j in reversed(range(len(nums))):
+            arr2[j] = idx
+            idx *= nums[j]
+        
+        for idx in range(len(nums)):
+            arr3[idx] = arr1[idx] * arr2[idx]
+        
+        return arr3
+    
+    # more optimal with Space: O(n)
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+        result = [1 for _ in nums]
+        
+        idx = 1
+        for i in range(len(nums)):
+            result[i] = idx
+            idx *= nums[i]
+        
+        idx = 1
+        for j in reversed(range(len(nums))):
+            result[j] *= idx
+            idx *= nums[j]
+        
+        return result
