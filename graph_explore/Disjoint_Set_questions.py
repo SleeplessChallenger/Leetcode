@@ -374,3 +374,232 @@ class UnionFind:
 
             self.count -= 1
 
+# 5. Evaluate Division
+class Solution:
+# dfs
+    def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
+        graph = defaultdict(defaultdict)
+        
+        for (d1, d2), value in zip(equations, values):
+            graph[d1][d2] = value
+            graph[d2][d1] = 1/value
+        
+        def dfs(explored, v1, v2, val):
+            explored.add(v1)
+            adjacent = graph[v1]
+            result = -1.0
+            
+            if v2 in adjacent:
+                result = val * adjacent[v2]
+            else:
+                for k, v in adjacent.items():
+                    if k in explored:
+                        continue
+                    # we need to mult `val` as we're
+                    # traversing node
+                    result = dfs(explored, k, v2, val * v)
+                    if result != -1.0:
+                        break
+                        
+            explored.remove(v1)
+            return result
+        
+        total = []
+        
+        for q1, q2 in queries:
+            if q1 not in graph or q2 not in graph:
+                result = -1.0
+            elif q1 == q2:
+                result = 1.0
+            else:
+                visited = set()
+                result = dfs(visited, q1, q2, 1)
+                
+            total.append(result)
+        
+        return total
+
+# Union Find
+
+
+# 6. Optimize Water Distribution in a Village
+class Solution:
+    # Prim's with Min Heap
+    def minCostToSupplyWater(self, n: int, wells: List[int], pipes: List[List[int]]) -> int:
+        '''
+        In traditional MST we can't have weighted
+        vertices, only edges. In our case we have pipes
+        construction cost as edges and wells construction
+        cost as verticies weights. Hence we're to remove
+        weights from verticies to edges by creating 
+        virtual edge.
+        
+        1. `adjacency list` to keep our graph
+        2. `set` to keep our final MST and determine
+        whether the vertex has been added
+        3. Min Heap to determine min cost vertex
+        '''
+        graph = {0: []}
+        
+        for vertex in range(len(wells)):
+            cost = wells[vertex]
+            '''
+            +1 because we want to simulate
+            other vertices => they start from 1
+            '''
+            graph[0].append((cost, vertex + 1))
+        
+        for vertex1, vertex2, cost in pipes:
+            if vertex1 not in graph:
+                graph[vertex1] = []
+            
+            graph[vertex1].append((cost, vertex2))
+            
+            if vertex2 not in graph:
+                graph[vertex2] = []
+            
+            graph[vertex2].append((cost, vertex1))
+        
+        explored = set([0])
+        heap = MinHeap(graph[0])
+        
+        result = 0
+        while len(explored) < n + 1:
+            cost, next_vertex = heap.remove()
+            if next_vertex not in explored:
+                explored.add(next_vertex)
+                result += cost
+                if next_vertex not in graph:
+                    continue
+                else:
+                    for new_cost, adjacent_vertex in graph[next_vertex]:
+                        if adjacent_vertex not in explored:
+                            heap.insert((new_cost, adjacent_vertex))
+        
+        return result
+
+    
+class MinHeap:
+    def __init__(self, arr):
+        self.heap = self.buildHeap(arr)
+    
+    def check(self):
+        return len(self.heap) == 0
+    
+    def buildHeap(self, arr):
+        parentIdx = (len(arr) - 2) // 2
+        for i in reversed(range(parentIdx + 1)):
+            self.siftDown(i, len(arr) - 1, arr)
+        return arr
+    
+    def peek(self):
+        return self.heap[0]
+    
+    def remove(self):
+        to_remove = self.heap[0]
+        node = self.heap.pop()
+        if len(self.heap) > 0:
+            self.heap[0] = node
+            self.siftDown(0, len(self.heap) - 1, self.heap)
+        return to_remove
+    
+    def insert(self, value):
+        self.heap.append(value)
+        self.siftUp()
+    
+    def siftDown(self, idx, length, arr):
+        idxOne = idx * 2 + 1
+        while idxOne <= length:
+            idxTwo = idx * 2 + 2 if idx * 2 + 2 <= length else -1
+            if idxTwo != -1 and arr[idxOne][0] > arr[idxTwo][0]:
+                swap = idxTwo
+            else:
+                swap = idxOne
+            
+            if arr[swap][0] < arr[idx][0]:
+                self.swapValues(swap, idx, arr)
+                idx = swap
+                idxOne = idx * 2 + 1
+            else:
+                return
+    
+    def swapValues(self, i, j, arr):
+        arr[i], arr[j] = arr[j], arr[i]
+    
+    def siftUp(self):
+        idx = len(self.heap) - 1
+        while idx > 0:
+            parentIdx = (idx - 1) // 2
+            if self.heap[idx][0] < self.heap[parentIdx][0]:
+                self.swapValues(idx, parentIdx, self.heap)
+                idx = parentIdx
+            else:
+                return
+
+    # Kruskal's with Union Find
+        def minCostToSupplyWater(self, n: int, wells: List[int], pipes: List[List[int]]) -> int:
+            '''
+            create virtual vertex as well as we're
+            to deal with wells. But here we need
+            to use list() as dict() cannot be sorted
+            '''
+            graph = []
+            for vertex in range(len(wells)):
+                cost = wells[vertex]
+                graph.append((cost, 0, vertex + 1))
+
+            for v1, v2, cost in pipes:
+                graph.append((cost, v1, v2))
+
+            '''
+            sort edges including virtual one. And hence
+            here we don't start from 0 as with Prim.
+            And by doing so we start from smallest cost.
+            '''
+            graph.sort(key=lambda x: x[0])
+            '''
+            pay attention that we start
+            from 0 node, not 1 (simply speaking
+            we need one more node)
+            '''
+            union_graph = UnionFind(n + 1)
+            result = 0
+
+            for component in graph:
+                cost, v1, v2 = component
+                if union_graph.union(v1, v2):
+                    result += cost
+                else:
+                    continue
+
+            return result
+        
+        
+class UnionFind:
+    def __init__(self, size):
+        self.root = [i for i in range(size)]
+        self.rank = [1 for _ in self.root]
+    
+    def find(self, vertex):
+        if vertex == self.root[vertex]:
+            return vertex
+        self.root[vertex] = self.find(self.root[vertex])
+        return self.root[vertex]
+    
+    def union(self, v1, v2):
+        root1 = self.find(v1)
+        root2 = self.find(v2)
+        
+        if root1 != root2:
+            if self.rank[root1] > self.rank[root2]:
+                self.root[root2] = root1
+            elif self.rank[root1] < self.rank[root2]:
+                self.root[root1] = root2
+            else:
+                self.root[root2] = root1
+                self.rank[root1] += 1
+            
+            return True
+        
+        else:
+            return False
