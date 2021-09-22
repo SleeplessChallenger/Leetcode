@@ -46,6 +46,8 @@ class Solution:
                 else:
                     queue.append(temp)
 
+       	return full_path
+
 # 3. Populating Next Right Pointers in Each Node
 class Solution:
     def connect(self, root: 'Node') -> 'Node':
