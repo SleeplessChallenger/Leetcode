@@ -226,3 +226,41 @@ class Solution:
                 visited[curr][idx] = False
 
         # return False
+
+# 5. All Paths from Source Lead to Destination
+class Solution:
+    def leadsToDestination(self, n: int, edges: List[List[int]], source: int, destination: int) -> bool:
+        adj = [[] for _ in range(n)]
+        for e1, e2 in edges:
+            adj[e1].append(e2)
+        
+        for vertex in adj[source]:
+            
+            visited = set()
+            
+            result = self.dfs(adj, destination, vertex, visited)
+            if not result:
+                return False
+
+        if len(adj[source]) == 0:
+            return source == destination
+        
+        return True
+    
+    def dfs(self, adj, destination, vertex, visited):
+        # to catch deadlocks
+        if not len(adj[vertex]):
+            return vertex == destination
+
+        visited.add(vertex)
+        for node in adj[vertex]:
+            # catch self-loops or loops
+            if node in visited:
+                return False
+            
+            result = self.dfs(adj, destination, node, visited)
+            if not result:
+                return False
+ 
+        visited.remove(vertex)
+        return True
