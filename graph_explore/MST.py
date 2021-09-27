@@ -5,7 +5,7 @@ At first, let's understand that Kruskal's algo works on edges
 whilst Prim's algo works on verticies. What does it mean?
 => Kruskal's algo will connect edges step by step skipping
 when they have same root, whilst Prim's will do the same, but
-with verticies. Check "Evaluate divisions" LC solution to get clearer
+with verticies. Check "Optimize Water Distribution in a Village" LC solution to get clearer
 understanding.
 
 1. We need real graph as what we have is a bunch of points.
@@ -125,3 +125,107 @@ class UnionFind:
         
         else:
             return False
+
+
+    # Prim's Algo
+    def minCostConnectPoints(self, points: List[List[int]]) -> int:
+        graph = {}
+        self.create_graph(points, graph)
+     
+        visited = {0}
+        min_heap = MinHeap(graph[0])
+
+        result = 0
+
+        while len(visited) < len(points):
+            cost, vertex = min_heap.remove()
+            if vertex not in visited:
+                visited.add(vertex)
+                result += cost
+                
+                # if vertex not in graph:
+                #     continue
+                
+                for i in graph[vertex]:
+                    cost, node = i
+                    if node not in visited:
+                        min_heap.insert((cost, node))
+
+        return result
+        
+    def create_graph(self, points, graph):
+        for point in range(len(points)):
+            graph[point] = []
+        
+        for i in range(len(points) - 1):
+            # can be with -1 or without
+            for j in range(i + 1, len(points)):
+                curr_point = points[i]
+                next_point = points[j]
+                result = self.difference(curr_point[0], curr_point[1],
+                                        next_point[0], next_point[1])
+                    
+                graph[i].append((result, j))
+                graph[j].append((result, i))
+    
+    
+    def difference(self, a, b, c, d):
+        return abs(a - c) + abs(b - d)
+     
+
+class MinHeap:
+    def __init__(self, arr):
+        self.heap = self.buildHeap(arr)
+    
+    def check(self):
+        return len(self.heap) == 0
+    
+    def buildHeap(self, arr):
+        parentIdx = (len(arr) - 2) // 2
+        for i in reversed(range(parentIdx + 1)):
+            self.siftDown(i, len(arr) - 1, arr)
+        return arr
+    
+    def peek(self):
+        return self.heap[0]
+    
+    def remove(self):
+        to_remove = self.heap[0]
+        node = self.heap.pop()
+        if len(self.heap) > 0:
+            self.heap[0] = node
+            self.siftDown(0, len(self.heap) - 1, self.heap)
+        return to_remove
+    
+    def insert(self, value):
+        self.heap.append(value)
+        self.siftUp()
+    
+    def siftDown(self, idx, length, arr):
+        idxOne = idx * 2 + 1
+        while idxOne <= length:
+            idxTwo = idx * 2 + 2 if idx * 2 + 2 <= length else -1
+            if idxTwo != -1 and arr[idxOne][0] > arr[idxTwo][0]:
+                swap = idxTwo
+            else:
+                swap = idxOne
+            
+            if arr[swap][0] < arr[idx][0]:
+                self.swapValues(swap, idx, arr)
+                idx = swap
+                idxOne = idx * 2 + 1
+            else:
+                return
+    
+    def swapValues(self, i, j, arr):
+        arr[i], arr[j] = arr[j], arr[i]
+    
+    def siftUp(self):
+        idx = len(self.heap) - 1
+        while idx > 0:
+            parentIdx = (idx - 1) // 2
+            if self.heap[idx][0] < self.heap[parentIdx][0]:
+                self.swapValues(idx, parentIdx, self.heap)
+                idx = parentIdx
+            else:
+                return        
