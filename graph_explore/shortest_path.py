@@ -176,3 +176,145 @@ class MinHeap:
         curr_idx = self.vertex[idx]
         self.heap[curr_idx] = (idx, value)
         self.siftUp(curr_idx)
+
+ # 2. Cheapest FLights Within K Stops
+class Solution:
+    def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, k: int) -> int:
+        current = [float('inf') for _ in range(n)]
+        previous = [float('inf') for _ in range(n)]
+        previous[src] = 0
+        
+        for _ in range(k + 1):
+            current[src] = 0
+            for flight in flights:
+                prev, curr, cost = flight
+                
+                if previous[prev] < float('inf'):
+                    current[curr] = min(
+                        current[curr],
+                        previous[prev] + cost
+                    )
+            
+            previous = list(current)
+        
+        return -1 if current[dst] == float('inf') else current[dst]
+
+# 3. Path With Minimum Effort
+class Solution:
+    # brute-force
+    def minimumEffortPath(self, heights: List[List[int]]) -> int:
+        row = len(heights)
+        col = len(heights[0])
+        self.goal = float('inf')
+        
+        def dfs(x, y, diff):
+            if x == row -1 and y == col - 1:
+                self.goal = min(self.goal, diff)
+                return diff
+            
+            curr_height = heights[x][y]
+            heights[x][y] = 0
+            min_effort = float('inf')
+            
+            for i, j in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                adj_x = x + i
+                adj_y = y + j
+                
+                if 0 <= adj_x < row and 0 <= adj_y < col and\
+                    heights[adj_x][adj_y] != 0:
+
+                    curr_diff = abs(heights[adj_x][adj_y] - curr_height)
+                    max_curr_diff = max(curr_diff, diff)
+                    
+                    if max_curr_diff < self.goal:
+                        result = dfs(adj_x, adj_y, max_curr_diff)
+                        min_effort = min(min_effort, result)
+            
+            heights[x][y] = curr_height
+            return min_effort
+        
+        return dfs(0, 0, 0)
+    
+    # Disjoint Set
+    '''
+    1. row * col to init UnionFind
+    2. Create edge_list which will hold
+        difference between 2 cells and cells
+    3. To make compression for point 1 to work:
+        curr_row * cols + curr_col
+    4. sort() edge list in asc
+    5. 
+    
+    '''
+    def minimumEffortPath(self, heights: List[List[int]]) -> int:
+        row = len(heights)
+        col = len(heights[0])
+        
+        if row == 1 and col == 1:
+            return 0
+        
+        edge_list = []
+        
+        for curr_row in range(row):
+            for curr_col in range(col):
+                if curr_row > 0:
+                    diff = abs(
+                        heights[curr_row][curr_col] -
+                        heights[curr_row - 1][curr_col]
+                    )
+                    
+                    edge_list.append((
+                        diff,
+                        curr_row * col + curr_col,
+                        (curr_row - 1) * col + curr_col
+                    ))
+                
+                if curr_col > 0:
+                    diff = abs(
+                        heights[curr_row][curr_col] - 
+                        heights[curr_row][curr_col - 1]
+                    )
+                    
+                    edge_list.append((
+                        diff,
+                        curr_row * col + curr_col,
+                        curr_row * col + (curr_col - 1)
+                    ))
+            
+        edge_list.sort(key=lambda x: x[0])
+
+        uf = UnionFind(row * col)
+
+        for edge in edge_list:
+            cost, curr, nx = edge
+            
+            uf.union(curr, nx)
+            if uf.find(0) == uf.find(row * col - 1):
+                return cost
+
+        return -1
+
+
+class UnionFind:
+    def __init__(self, size):
+        self.root = [i for i in range(size)]
+        self.rank = [1 for _ in self.root]
+    
+    def find(self, vertex):
+        if vertex == self.root[vertex]:
+            return vertex
+        self.root[vertex] = self.find(self.root[vertex])
+        return self.root[vertex]
+    
+    def union(self, v1, v2):
+        root1 = self.find(v1)
+        root2 = self.find(v2)
+        
+        if root1 != root2:
+            if self.rank[root1] > self.rank[root2]:
+                self.root[root2] = root1
+            elif self.rank[root1] < self.rank[root2]:
+                self.root[root1] = root2
+            else:
+                self.root[root2] = root1
+                self.rank[root1] += 1
