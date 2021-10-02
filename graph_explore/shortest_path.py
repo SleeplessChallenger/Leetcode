@@ -177,9 +177,10 @@ class MinHeap:
         self.heap[curr_idx] = (idx, value)
         self.siftUp(curr_idx)
 
- # 2. Cheapest FLights Within K Stops
+# 2. Cheapest FLights Within K Stops
 class Solution:
     def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, k: int) -> int:
+        # first
         current = [float('inf') for _ in range(n)]
         previous = [float('inf') for _ in range(n)]
         previous[src] = 0
@@ -198,6 +199,18 @@ class Solution:
             previous = list(current)
         
         return -1 if current[dst] == float('inf') else current[dst]
+    
+        # second
+        prices = [float('inf') for _ in range(n)]
+        prices[src] = 0
+        for _ in range(k + 1):
+            new = [d for d in prices]
+            for prev, curr, cost in flights:
+                if prices[prev] + cost < new[curr]:
+                    new[curr] = prices[prev] + cost
+            prices = list(new)
+        
+        return -1 if prices[dst] == float('inf') else prices[dst]
 
 # 3. Path With Minimum Effort
 class Solution:
@@ -243,7 +256,8 @@ class Solution:
     3. To make compression for point 1 to work:
         curr_row * cols + curr_col
     4. sort() edge list in asc
-    5. 
+    5. Hence, due to being sorted, we'll have the
+        BEST result that we could
     
     '''
     def minimumEffortPath(self, heights: List[List[int]]) -> int:
