@@ -334,6 +334,7 @@ class Course:
             temp = []
             for node in queue:
                 courses += 1
+		# to track loops or detached nodes
                 adjacent = graph[node]
                 for a in adjacent:
                     in_count[a] -= 1
