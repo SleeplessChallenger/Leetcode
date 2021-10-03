@@ -69,7 +69,7 @@ class Node:
         self.visited = False
         self.visiting = False
 
-    # ht
+    # adjacency list ver. 1
     def findOrder(self, numCourses: int, prereqs: List[List[int]]) -> List[int]:
         if numCourses == 0:
             return []
@@ -104,6 +104,49 @@ class Node:
         
         for v in inDegree:
             if v != 0:
+                return []
+        
+        return result
+
+    # adjacency list ver. 2
+    def findOrder(self, numCourses: int, prereqs: List[List[int]]) -> List[int]:
+        if numCourses == 0:
+            return []
+        
+        if not prereqs or len(prereqs) == 0:
+            return [i for i in range(numCourses)]
+        
+        graph = {}
+        inDegree = {}
+        result = []
+        queue = []
+        
+        for i in range(numCourses):
+            graph[i] = []
+            inDegree[i] = 0
+        
+        for p in prereqs:
+            prev = p[0]
+            curr = p[1]
+            # add prereqs
+            graph[curr].append(prev)
+            inDegree[prev] += 1
+        
+        queue = []
+        for key in inDegree:
+            if inDegree[key] == 0:
+                queue.append(key)
+        
+        while len(queue) != 0:
+            node = queue.pop(0)
+            result.append(node)
+            for v in graph[node]:
+                inDegree[v] -= 1
+                if inDegree[v] == 0:
+                    queue.append(v)
+        
+        for node in inDegree:
+            if inDegree[node] != 0:
                 return []
         
         return result
