@@ -39,6 +39,35 @@ class Solution:
         return node
 
 # 3. Binary Tree Level Order Traversal
+# mine
+class Solution:
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        if not root:
+            return []
+        
+        queue = [root]
+        result = []
+        
+        while len(queue):
+            temp = []
+            for node in queue:
+                temp.append(node.val)
+            
+            if len(temp):
+                result.append(temp)
+    
+            nx = queue
+            queue = []
+                
+            for node in nx:
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+        
+        return result
+
+# not mine
 class Solution:
     def levelOrder(self, root: TreeNode) -> List[List[int]]:
         if root is None:
