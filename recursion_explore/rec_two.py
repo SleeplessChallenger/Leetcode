@@ -312,3 +312,283 @@ class Solution:
             temp.append(idx)
             self.traverse(result, idx + 1, high, k, temp)
             temp.pop()
+
+# 8. Generate Parentheses
+class Solution:
+    def generateParenthesis(self, n: int) -> List[str]:
+        result = []
+        self.traverse(result, 0, 0, n, [])
+        return result
+
+    def traverse(self, result, left, right, n, temp):
+        if len(temp) == 2 * n:
+            result.append("".join(temp))
+            return
+
+        if left < n:
+            temp.append('(')
+            self.traverse(result, left + 1, right, n, temp)
+            temp.pop()
+
+        if left > right:
+            temp.append(')')
+            self.traverse(result, left, right + 1, n, temp)
+            temp.pop()
+
+# 9. Convert Binary Search Tree to Sorted Doubly Linked List
+class Solution:
+    # Time: O(n) Space: O(n)
+    '''
+    As it's BST => inorder traversal will
+    create already sorted list
+    '''
+    def treeToDoublyList(self, root: 'Node') -> 'Node':
+        nodes = self.in_order_traversal(root)
+        
+        if len(nodes) == 0:
+            return None
+        
+        elif len(nodes) == 1:
+            node = nodes[0]
+            node.left = node
+            node.right = node
+            return node
+
+        for idx in range(1, len(nodes)):
+            prev = nodes[idx - 1]
+            curr = nodes[idx]
+            
+            prev.right = curr
+            curr.left = prev
+        
+        nodes[0].left = nodes[-1]
+        nodes[-1].right = nodes[0]
+        
+        return nodes[0]
+        
+        
+    def in_order_traversal(self, node):
+        # morris traversal
+        if node is None:
+            return []
+        elif node.left is None and node.right is None:
+            return [node]
+        
+        result = []
+        curr = node
+        
+        while curr:
+            if curr.left:
+                temp_node = curr.left
+                while temp_node.right and temp_node.right != curr:
+                    temp_node = temp_node.right
+                
+                if not temp_node.right:
+                    temp_node.right = curr
+                    curr = curr.left
+                    
+                elif temp_node.right == curr:
+                    temp_node.right = None
+                    result.append(curr)
+                    curr = curr.right
+    
+            else:
+                result.append(curr)
+                curr = curr.right
+        
+        return result
+
+
+    # in place
+    head = None
+    prev = None
+    # Time: O(n) Space: O(d)
+    def treeToDoublyList(self, root: 'Node') -> 'Node':
+        '''
+        rightmost node in left subtree and
+        leftmost node in right subtree
+        '''
+        if not root:
+            return None
+        self.traverse(root)
+        self.head.left = self.prev
+        self.prev.right = self.head
+        return self.head
+    
+    def traverse(self, node):
+        if not node:
+            return node
+        self.traverse(node.left)
+        if self.prev: # not head
+            self.prev.right = node
+            node.left = self.prev
+        else: # head
+            # here we enter inly ones
+            # when leftmost branch is visited
+            self.head = node
+        self.prev = node
+        self.traverse(node.right)
+
+# 10. Permutations
+class Solution:
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        result = []
+        self.traverse(nums, result, 0)
+        return result
+    
+    def traverse(self, nums, result, idx):
+        if idx == len(nums):
+            result.append(list(nums))
+            return
+        
+        for i in range(idx, len(nums)):
+            self.swap(i, idx, nums)
+            self.traverse(nums, result, idx + 1)
+            self.swap(i, idx, nums)
+    
+    def swap(self, i, j, nums):
+        nums[i], nums[j] = nums[j], nums[i]
+
+# 11. Largest Rectangle in Histogram
+class Solution:
+    # Time: O(n^2) Space: O(1)
+    def largestRectangleArea(self, heights: List[int]) -> int:
+        if len(heights) == 1:
+            return heights[0]
+        
+        total = 0
+        
+        for idx in range(len(heights)):
+            left = idx
+            right = idx
+            count_left = 0
+            count_right = 0
+            
+            while left > 0:
+                if heights[left - 1] >= heights[idx]:
+                    left -= 1
+                    count_left += 1
+                else:
+                    break
+            
+            while right < len(heights) - 1:
+                if heights[right + 1] >= heights[idx]:
+                    right += 1
+                    count_right += 1
+                else:
+                    break
+            
+            total = max(total, (count_left + count_right + 1) * heights[idx])
+        
+        return total
+    
+    # Time: O(n) Space: O(n)
+    def largestRectangleArea(self, heights: List[int]) -> int:
+        '''
+        We put in stack idx, not values themselves
+        
+        1. Put -1 in stack and start traversal from 0
+        
+        2. While values in `heights` appear in increasing
+            order -> append() them
+
+        3. When we meet num with smaller value: `.pop()` from
+            stack and use `idx` as current-smaller num as right
+            border. Subtract next idx on the stack as left border.
+
+        4. Then, if `curr` is still smaller -> pop() and do the same
+            as above, else append() idx to the stack
+
+        5. If there is only -1 left on the stack => simply append().
+            But there CAN be case when left border is -1.
+        
+        6. As we `.pop()` only when values are greater on the stack
+            than current => they'll encompass the range
+        
+        
+        '''
+        stack = [-1]
+        max_value = 0
+        
+        for idx in range(len(heights)):
+            curr = heights[idx]
+            
+            while stack[-1] != -1 and curr <= heights[stack[-1]]:
+                node_idx = stack.pop()
+                node = heights[node_idx]
+                
+                diff = idx - stack[-1] - 1
+                # `curr` as we need smallest value and
+                # we enter here only if curr <= top on stack
+                value = diff * node
+                max_value = max(max_value, value)
+            
+            stack.append(idx)
+        
+        # to deal with remaining
+        while stack[-1] != -1:
+            node_idx = stack.pop()
+            node = heights[node_idx]
+            
+            diff = len(heights) - stack[-1] - 1
+            value = diff * node
+            max_value = max(max_value, value)
+        
+        return max_value
+
+# 12. Letter Combinations of a Phone Number
+class Solution: 
+    '''
+    We don't use `for loop`. but [idx] as we need
+    to lock letter and loop will constantly shift it
+    '''
+    # first
+    def letterCombinations(self, digits: str) -> List[str]:
+        if len(digits) == 0:
+            return []
+        
+        ht = {
+        '1': [], '2': ['a', 'b', 'c'], '3': ['d', 'e', 'f'], '4': ['g', 'h', 'i'],
+          '5': ['j', 'k', 'l'], '6': ['m', 'n', 'o'], '7': ['p', 'q', 'r', 's'],
+          '8': ['t', 'u', 'v'], '9': ['w', 'x', 'y', 'z'], '0': []
+        }
+        
+        result = []
+        self.traverse(result, digits, [0 for _ in range(len(digits))], 0, ht)
+        return result
+    
+    def traverse(self, result, digits, temp, idx, ht):
+        if idx == len(digits):
+            result.append(''.join(temp))
+            return
+        else:
+            digit = digits[idx]
+            for letter in ht[digit]:
+                temp[idx] = letter
+                self.traverse(result, digits, temp, idx + 1, ht)
+    
+    # second
+    def letterCombinations(self, digits: str) -> List[str]:
+        if len(digits) == 0:
+            return []
+        
+        ht = {
+        '1': [], '2': ['a', 'b', 'c'], '3': ['d', 'e', 'f'], '4': ['g', 'h', 'i'],
+          '5': ['j', 'k', 'l'], '6': ['m', 'n', 'o'], '7': ['p', 'q', 'r', 's'],
+          '8': ['t', 'u', 'v'], '9': ['w', 'x', 'y', 'z'], '0': []
+        }
+        
+        result = []
+        self.traverse(result, digits, [], 0, ht)
+        return result
+    
+    def traverse(self, result, digits, temp, idx, ht):
+        if len(temp) == len(digits):
+            result.append(''.join(temp))
+            return
+        else:             
+            digit = digits[idx]
+            for letter in ht[digit]:
+                temp.append(letter)
+                self.traverse(result, digits, temp, idx + 1, ht)
+                temp.pop()
