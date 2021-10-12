@@ -592,3 +592,62 @@ class Solution:
                 temp.append(letter)
                 self.traverse(result, digits, temp, idx + 1, ht)
                 temp.pop()
+
+# 13. The Skyline Problem
+class Solution:
+    def getSkyline(self, buildings: List[List[int]]) -> List[List[int]]:
+        if len(buildings) == 0:
+            return []
+        
+        elif len(buildings) == 1:
+            return [[buildings[0][0], buildings[0][2]], [buildings[0][1], 0]]
+        
+        mid = len(buildings) // 2
+        left_skyline = self.getSkyline(buildings[:mid])
+        right_skyline = self.getSkyline(buildings[mid:])
+        
+        return self.merge_output(left_skyline, right_skyline)
+    
+    def merge_output(self, left, right):
+        l = r = 0
+        curr_y = left_y = right_y = 0
+        result = []
+        
+        while l < len(left) and r < len(right):
+            if left[l][0] < right[r][0]:
+                # `left_y` same as in the start
+                x, left_y = left[l]
+                l += 1
+            else:
+                x, right_y = right[r]
+                r += 1
+            # between both
+            max_y = max(left_y, right_y)
+            # change in Skyline
+            if curr_y != max_y:
+                self.update_output(result, x, max_y)
+                curr_y = max_y
+
+        while l < len(left):
+            x, y = left[l]
+            l += 1
+            if y != curr_y:
+                self.update_output(result, x, y)
+                curr_y = y
+            
+        while r < len(right):
+            x, y = right[r]
+            r += 1
+            if y != curr_y:
+                self.update_output(result, x, y)
+                curr_y = y
+        
+        return result
+    
+    def update_output(self, result, x, max_y):
+        # horizontal
+        if len(result) == 0 or result[-1][0] != x:
+            result.append([x, max_y])
+        # vertical
+        else:
+            result[-1][1] = max_y
