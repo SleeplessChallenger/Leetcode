@@ -118,3 +118,91 @@ class Solution:
         if is_col:
             for i in range(len(matrix)):
                 matrix[i][0] = 0
+
+# 3. Word Search
+class Solution:
+    # mine
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        visited = set()
+        
+        for i in range(len(board)):
+            for j in range(len(board[i])):
+                if board[i][j] == word[0]:
+                    result = self.backtrack(visited, board, i, j, word, 1)
+                    if result:
+                        return True
+        
+        return False
+    
+    def backtrack(self, visited, board, row, col, word, idx):
+        if idx == len(word):
+            return True
+        
+        visited.add((row,col))
+        # for i in range(idx, len(word)):
+        cells = self.explore(visited, board, row, col, idx, word)
+        for cell in cells:
+
+            res = self.backtrack(visited, board, cell[0],
+                        cell[1], word, idx+1)
+
+            if res:
+                return True
+            
+        visited.remove((row,col))
+        return False
+            
+    # 1. check that cell is within ranges of board
+    # 2. check that cell isn't in visited
+    # 3. check that letter in cell == curr letter
+    def explore(self, visited, board, row, col, idx, word):
+        result = []
+        
+        if row > 0:
+            if (row-1,col) not in visited and board[row-1][col] == word[idx]:
+                result.append([row-1,col])
+        
+        if row + 1 <= len(board) - 1:
+            if (row+1,col) not in visited and board[row+1][col] == word[idx]:
+                result.append([row+1,col])
+        
+        if col > 0:
+            if (row,col-1) not in visited and board[row][col-1] == word[idx]:
+                result.append([row,col-1])
+        
+        if col + 1 <= len(board[0]) - 1:
+            if (row,col+1) not in visited and board[row][col+1] == word[idx]:
+                result.append([row,col+1])
+        
+        return result
+    
+    # not mine
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        for i in range(len(board)):
+            for j in range(len(board[i])):
+                if self.backtrack(board, word, i, j):
+                    return True
+        
+        return False
+    
+    def backtrack(self, board, word, row, col):
+        if len(word) == 0:
+            return True
+        
+        if row < 0 or col < 0 or row > len(board) - 1 or\
+            col > len(board[0]) - 1 or board[row][col] != word[0]:
+            return False
+        
+        # used inside loop
+        result = False
+        
+        directions = [(1,0), (-1,0), (0,1), (0,-1)]
+        board[row][col] = '#'
+        
+        for d in directions:
+            result = self.backtrack(board, word[1:], row+d[0], col+d[1])
+            if result:
+                break
+        
+        board[row][col] = word[0]
+        return result
