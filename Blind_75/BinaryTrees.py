@@ -64,7 +64,7 @@ class Solution:
                 return False
         
         return True
-            
+
 # 4. easy - Lowest Common Ancestor of a Binary Search Tree
 # Definition for a binary tree node.
 # class TreeNode:
@@ -100,7 +100,6 @@ class Solution:
                 root = root.right
             else:
                 return  root
-
 
 # 5. easy - Subtree of Another Tree
 # Definition for a binary tree node.
@@ -156,7 +155,7 @@ class Solution:
         
         leftNode = self.validateTree(node.left, lower, node.val)
         return leftNode and self.validateTree(node.right, node.val, upper)
-   
+
 # 7. medium - Construct Binary Tree from Preorder and Inorder Traversal
 class Solution:
     def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
@@ -173,7 +172,7 @@ class Solution:
         leftNode = self.buildTree(preorder[1:idx + 1], inorder[:idx])
         rightNode = self.buildTree(preorder[idx + 1:], inorder[idx + 1:])
         return TreeNode(root, leftNode, rightNode)
- 
+
 # 8. medium - Kth Smallest Element in a BST
 # Definition for a binary tree node.
 # class TreeNode:
@@ -326,3 +325,25 @@ class Solution:
         isParent = node if idx == 2 else None
         
         return Parent(isParent, idx)
+
+# Hard chunk
+
+# 11. Binary Tree Maximum Path Sum
+class Solution:
+    def maxPathSum(self, root: TreeNode) -> int:
+        _, result = self.get_result(root)
+        return result
+    
+    def get_result(self, node):
+        if node is None:
+            return (0, float('-inf'))
+        
+        lsb, ls = self.get_result(node.left)
+        rsb, rs = self.get_result(node.right)
+        mcsb = max(lsb, rsb)
+        
+        msb = max(mcsb + node.val, node.val)
+        mst = max(msb, lsb + node.val + rsb)
+        rmps = max(mst, ls, rs)
+        
+        return (msb, rmps)
