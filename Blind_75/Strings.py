@@ -65,7 +65,7 @@ class Solution:
                     return False
                     
         return len(stack) == 0
-
+    
 # 4. easy - group anagrams
 # Time: O(w * n * log n)
 # w - number of words; n - longest word
@@ -123,3 +123,129 @@ class Solution:
             ht[letter] = idx
         
         return longest[1] - longest[0]
+
+# 3. Encode and Decode Strings
+# brute-force
+class Codec:
+    def encode(self, strs: [str]) -> str:
+        """Encodes a list of strings to a single string.
+        """
+        if len(strs) == 0:
+            return chr(258)
+        
+        result = chr(257).join(strs)
+        return result
+        
+        
+
+    def decode(self, s: str) -> [str]:
+        """Decodes a single string to a list of strings.
+        """
+        if s == chr(258):
+            return []
+        
+        return s.split(chr(257))
+
+# optimal
+# all you need to do is encode the length of x into 4 bytes ( why 4 bytes - integer size - 4 bytes = [8bits, 8bits, 8bits, 8bits])
+
+# ok so how do you get a X(length of str) total size into chunks of 8 bits ?
+# 2.1 >> is right shift - which means if you have 101111 >> 2 - this right shift moves 101111, 2 times to the right - which
+# becomes 1011
+# 2.2 if you go to python terminal and type 0xff you get 8 1's which represents 11111111 = a BYTE
+# 2.3 if you AND(&) any number with 0xff = it gives you the right most 8 bits of the number
+# example: 1. bin(291) (binary of 291) is '0b100100011'
+# 2. oxff binary is '0b11111111'
+# 3. now if you 291 & 0xff = you get last 8 bits of 291 == 00100011
+# If you understand this - you understood the solution.
+
+# Now as explained in the 2 point. The python solution line 6 we take the whole length of the string (len(str)) - we have to
+# encode that into [8bits, 8 bits, 8bits, 8bits]
+# example: 1. lets say our total length is 291 ( in binary its bin(291) = '0b100100011')
+# 2. what you have to do now ? we grab the right most 8 bits - how do you grab right most 8 bits ?
+# 2.1 as mentioned above you do 291 & 0xff = you get last 8 bits
+
+# Now you already have right most 8 bits - in next iteration you are interested in NEXT 8 bits - how do you get
+# that ? we move 291 >> 8 ( which removes the last 8 bits we already computed) - which means if you do
+# (291 >> 8 ) & 0xff = it gives you the next right most 8 bits
+
+# as already mentioned we need 4 chunks of 8 bits [8bits, 8bits, 8bits, 8bits]
+# 4.1 [ for i in range(4)] thats why the range is 4 ( 0, 1, 2, 3)
+
+# Once you compute all the 8bits we need to convert to char hence its [chr((x >> (i * 8)) & 0xff) for i in range(4)]
+
+# 4. Minimum Window Substring
+class Solution:
+    def minWindow(self, s: str, t: str) -> str:
+        ht = self.get_ht(t)
+        s_e = self.get_pointers(ht, s, t)
+        return self.get_result(s_e, s)
+        
+        
+    def get_ht(self, string):
+        ht = {}
+        for s in string:
+            if s not in ht:
+                ht[s] = 0
+            ht[s] += 1
+        
+        return ht
+    
+    def get_result(self, limit, string):
+        if limit[1] == float('inf'):
+            return ""
+        return string[limit[0]:limit[1] + 1]
+    
+    def get_pointers(self, ht, bigString, smallString):
+        bounds = [0, float('inf')]
+        
+        leftP = 0
+        rightP = 0
+        
+        big_ht = {}
+        marked = 0
+        unique_letters = len(ht.keys())
+        
+        # move right pointer
+        while rightP < len(bigString):
+            letter = bigString[rightP]
+            
+            if letter not in ht:
+                rightP += 1
+                continue
+            
+            if letter not in big_ht:
+                big_ht[letter] = 0
+            big_ht[letter] += 1
+            
+            if big_ht[letter] == ht[letter]:
+                marked += 1
+            
+            # move left pointer
+            while unique_letters == marked and leftP <= rightP:
+
+                letter = bigString[leftP]
+
+                bounds = self.check_bounds(leftP, rightP,
+                        bounds[0], bounds[1])
+
+                # this can be letter that isn't
+                # in our small ht => go further
+                if letter not in ht:
+                    leftP += 1
+                    continue
+
+
+                if big_ht[letter] == ht[letter]:
+                    marked -= 1
+
+                big_ht[letter] -= 1
+                leftP += 1
+
+            rightP += 1
+ 
+        return bounds
+                
+    def check_bounds(self, idx1, idx2, idx3, idx4):
+        return [idx1, idx2] if (idx2 - idx1) < (idx4 - idx3)\
+            else [idx3, idx4]
