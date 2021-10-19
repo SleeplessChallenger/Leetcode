@@ -174,7 +174,117 @@ class Codec:
 
 # Once you compute all the 8bits we need to convert to char hence its [chr((x >> (i * 8)) & 0xff) for i in range(4)]
 
-# 4. Minimum Window Substring
+# 4. Longest Repeating Character Replacement
+class Solution:
+    def characterReplacement(self, s: str, k: int) -> int:
+        '''
+        1. most frequent character and check that: 
+            window_size - this => under/equal `k`. Why? => 
+            we're to find whether we can use existing
+            number of `k` flips to make longest substring.
+        
+        2. "AABABBA". Take part: AABA. window_size = 4.
+            ht = {'A': 3, 'B': 1}. temp = 4 - 3 => 1. 1 <= k(1)
+            Hence we can use our 1 flip to change the letter and
+            to create longest subsequence
+            
+        '''
+        left = 0
+        right = 0
+        
+        ht = {}
+        longest = 0
+        
+        while right < len(s):
+            letter = s[right]
+            if letter not in ht:
+                ht[letter] = 0
+            
+            ht[letter] += 1
+            
+            max_count = self.get_max(ht)
+
+            cells_count = right - left + 1
+            # +1 as we're to have full substring
+            temp = cells_count - max_count
+            
+            if temp <= k:
+                longest = max(longest, cells_count)
+                
+            else:
+                letter = s[left]
+                
+                ht[letter] -= 1
+                if not ht[letter]:
+                    # del ht[letter]
+                    ht.pop(letter)
+                
+                left += 1
+            
+            right += 1
+            
+        return longest
+    
+    def get_max(self, ht):
+        return max(ht.values())
+
+# 5. Palindromic Substrings
+class Solution:
+    def countSubstrings(self, string: str) -> int:
+        result = 0
+        
+        for x in range(len(string)):
+            odd = self.func(string, x, x)
+            even = self.func(string, x-1, x)
+            # self.func(string, x, x+1)
+            
+            result += odd
+            result += even
+            
+        return result
+        
+    def func(self, string, i, j):
+        # we start from 0 as we are okay
+        # when counting `odd` to have 1,
+        # but when counting `even`: we
+        # may not have a palindrome
+        curr = 0
+        while i >= 0 and j < len(string):
+            if string[i] != string[j]:
+                break
+            
+            curr += 1
+            i -= 1
+            j += 1
+            
+            
+        return curr
+
+        l = 0
+        c_frequency = {}
+        longest_str_len = 0
+        for r in range(len(s)):
+            
+            if not s[r] in c_frequency:
+                c_frequency[s[r]] = 0
+            c_frequency[s[r]] += 1
+            
+            # Replacements cost = cells count between left and right - highest frequency
+            cells_count = r - l + 1
+            if cells_count - max(c_frequency.values()) <= k:
+                longest_str_len = max(longest_str_len, cells_count)
+                
+            else:
+                c_frequency[s[l]] -= 1
+                if not c_frequency[s[l]]:
+                    c_frequency.pop(s[l])
+                l += 1
+        
+        return longest_str_len
+
+
+# Hard
+# 6. Minimum Window Substring
 class Solution:
     def minWindow(self, s: str, t: str) -> str:
         ht = self.get_ht(t)
