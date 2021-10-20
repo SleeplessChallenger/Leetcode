@@ -206,3 +206,85 @@ class Solution:
         
         board[row][col] = word[0]
         return result
+
+# Hard chunk
+# 4. Word Search II
+
+class Solution:
+    # Time: O(N*M(4*3^L-1))
+    def findWords(self, board: List[List[str]], words: List[str]) -> List[str]:
+        trie = Trie()
+        for word in words:
+            trie.insert(word)
+        
+        visited = [[False for col in row]
+                  for row in board]
+        
+        result = []
+        for i in range(len(board)):
+            for j in range(len(board[i])):
+                # pay attention that we give .root of trie
+                self.grid_search(i, j, visited, trie.root, result, board)
+        
+        return result
+    
+    def grid_search(self, row, col, visited, node, result, board):
+        # check for if letter in node => proceed
+        # else break away is a type of backtracking
+        if visited[row][col]:
+            return
+        letter = board[row][col]
+        if letter not in node:
+            return
+        node = node[letter]
+        
+        visited[row][col] = True
+        if '*' in node:
+            if node['*'] not in result:
+                result.append(node['*'])
+        
+        # continue search even after word was found
+        adjacent_cells = self.explore(row, col, visited, board)
+        for r, c in adjacent_cells:
+            self.grid_search(r, c, visited, node, result, board)
+            # why we don't  `return` here?
+            # => we need to go further as there can be more
+            # word down this path: dog - OK, but what if
+            # we also have dogs? -> proceed down the trie
+        visited[row][col] = False
+    
+    def explore(self, row, col, visited, board):
+        temp = []
+        
+        if row > 0:
+            if not visited[row-1][col]:
+                temp.append([row-1, col])
+        
+        if col > 0:
+            if not visited[row][col - 1]:
+                temp.append([row, col-1])
+        
+        if row + 1 <= len(board) - 1:
+            if not visited[row+1][col]:
+                temp.append([row+1, col])
+        
+        if col + 1 <= len(board[0]) - 1:
+            if not visited[row][col+1]:
+                temp.append([row, col+1])
+        
+        return temp
+        
+
+class Trie:
+    def __init__(self):
+        self.root = {}
+        self.mark = '*'
+    
+    def insert(self, word):
+        node = self.root
+        for letter in word:
+            if letter not in node:
+                node[letter] = {}
+            node = node[letter]
+        
+        node[self.mark] = word
