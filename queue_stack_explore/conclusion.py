@@ -169,3 +169,50 @@ class MyStack:
         
         return len(visited) == len(rooms)
 
+# 4. 01 Matrix
+'''
+[[0,0,0],[0,1,0],[1,1,1]]
+row, col, depth = queue.pop(0)
+Here row = 0, col = 1
+Take (1,0) from directions
+
+new_row = 0 + 1
+new_col = 1 + 0
+
+All checks are passed -> queue.append((new_row, new_col, 0 + 1))
+
+'''
+class Solution:
+    def updateMatrix(self, matrix: List[List[int]]) -> List[List[int]]:
+        col_length = len(matrix[0])
+        row_length = len(matrix)
+        
+        result = [[float('inf') if matrix[i][j] != 0 else 0 for j in range(col_length)]
+                  for i in range(row_length)]
+        
+        queue = []
+        visited = set()
+        for i in range(row_length):
+            for j in range(col_length):
+                if matrix[i][j] == 0:
+                    visited.add((i,j))
+                    queue.append((i,j,0))
+        
+        directions = [(1,0), (-1,0), (0,1), (0,-1)]
+        
+        while len(queue) != 0:
+            row, col, depth = queue.pop(0)
+            result[row][col] = depth
+            
+            for d in directions:
+                new_row = row + d[0]
+                new_col = col + d[1]
+                
+                if new_row >= 0 and new_row < row_length and\
+                    new_col >= 0 and new_col < col_length and\
+                    (new_row,new_col) not in visited:
+                    
+                    visited.add((new_row,new_col))
+                    queue.append((new_row,new_col,depth+1))
+        
+        return result
