@@ -216,3 +216,73 @@ class Solution:
                     queue.append((new_row,new_col,depth+1))
         
         return result
+
+# 5. Flood Fill
+class Solution:
+    # bfs
+    def floodFill(self, image: List[List[int]], sr: int, sc: int, newColor: int) -> List[List[int]]:
+        visited = set()
+        queue = [[sr, sc]]
+        goal = image[sr][sc]
+        
+        while len(queue) != 0:
+            node = queue.pop(0)
+            image[node[0]][node[1]] = newColor
+            visited.add((node[0],node[1]))
+            
+            temp = self.explore(node[0], node[1], image, visited)
+            
+            for r, c in temp:
+                if image[r][c] != goal:
+                    continue
+                queue.append([r,c])
+        
+        return image
+    
+    def explore(self, row, col, matrix, visited):
+        result = []
+        
+        if row > 0 and (row-1,col) not in visited:
+            result.append([row-1,col])
+        if row + 1 <= len(matrix) - 1 and (row+1,col) not in visited:
+            result.append([row+1,col])
+        if col > 0 and (row,col-1) not in visited:
+            result.append([row,col-1])
+        if col + 1 <= len(matrix[0]) - 1 and (row,col+1) not in visited:
+            result.append([row,col+1])
+        
+        return result
+
+# 6. Decode String
+class Solution:
+    def decodeString(self, string: str) -> str:
+        '''
+        1. put letters on stack till not meet '['
+        2. .pop() elements from stack and prepend
+            them to substring
+        3. remove '[' from the stack
+        4. start removing digits from the stack
+            and prepend them again
+        5. add everything to the stack
+        '''
+        stack = []
+        digits = ['0', '1', '2', '3', '4', '5',
+            '6', '7', '8', '9']
+        
+        for letter in string:
+            if letter != ']':
+                stack.append(letter)
+            else:
+                substring = []
+                while stack[-1] != '[':
+                    substring.insert(0, stack.pop())
+                # remove '['
+                stack.pop()
+                k = []
+                # while len(stack) != 0 and stack[-1] in digits:
+                while len(stack) != 0 and stack[-1].isdigit():  
+                    k.insert(0, stack.pop())
+                
+                stack.append(int(''.join(k)) * ''.join(substring))
+        
+        return ''.join(stack)
