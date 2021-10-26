@@ -99,6 +99,15 @@ class Solution:
 
 # 5. Single Number
 class Solution:
+        '''
+take `[4,1,2,1,2]` as an example
+
+1. ^ will do addition in bitwise manner.
+2. But why do we need `result=0`? Why not simply `result=nums[0]` and start iteration from the second? => As I mentioned in the beginning, it is an addition. So, taking 4 and 1, it will give 5. But with `result=0` it'll give 4 at first,
+then we add 1 and 2.
+3. But then, we find duplicates of 1 and 2 which will be subtracted. Why? ^ gives 0 when 2 similar numbers are applied:
+* 8 ^ 8 - 0
+        '''
     def singleNumber(self, nums: List[int]) -> int:
         xor = 0
         for num in nums:
