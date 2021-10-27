@@ -76,14 +76,34 @@ class Solution:
 # 3. easy - reverse bits
 class Solution:
     def reverseBits(self, n: int) -> int:
-        res = 0
-        for i in range(32):
-            # move right and compare with 1:
-            # 1 & 1 -> 1; 1 & 0 -> 0
-            bit = (n >> i) & 1
-            res = res | (bit << (31 - i))
+        '''
+        1. to figure out the last number we use
+            `&`: number & 1.
+            Ex: 0 & 1 = 0; 1 & 1 = 1
         
-        return res
+        2. But we also need to shift bits in n. How can
+            we do so> => `>>`.
+            As we apply & with >> to get the curr bit
+        
+        3. In our `result` we'll check with logic or: |;
+            as we want 0 if curr is 0 else 1.
+            But simple | isn't enough as we want to shift
+            position as well.
+            
+            Look that at first we shift right and in result
+            we shift left
+            => get first bit of n and put it in 31 place
+                of our result and so on
+            
+        '''
+        result = 0
+        # all 32 bits are o at first
+        
+        for i in range(32):
+            temp = (n >> i) & 1
+            result = result | (temp << (32 - (i + 1)))
+        
+        return result
 
 # 4. easy - counting bits
 class Solution:
