@@ -100,13 +100,44 @@ class Solution:
 # 5. Single Number
 class Solution:
         '''
+At first, recommend you to skim through the following resources:
+1. https://www.interviewcake.com/table-of-contents#section_bit-manipulation_concept_not
+2. https://leetcode.com/discuss/general-discussion/1073221/All-about-Bitwise-Operations-Beginner-Intermediate
+
+**Steps:**
+
 take `[4,1,2,1,2]` as an example
 
 1. ^ will do addition in bitwise manner.
 2. But why do we need `result=0`? Why not simply `result=nums[0]` and start iteration from the second? => As I mentioned in the beginning, it is an addition. So, taking 4 and 1, it will give 5. But with `result=0` it'll give 4 at first,
 then we add 1 and 2.
 3. But then, we find duplicates of 1 and 2 which will be subtracted. Why? ^ gives 0 when 2 similar numbers are applied:
-* 8 ^ 8 - 0
+* 8 ^ 8 = 0
+
+Okay, let me explain everything in more details.
+Take binary representation: 
+0000: 0
+0001: 1
+0010: 2
+0011: 3
+0100: 4
+0101: 5
+0110: 6
+0111: 7
+1000: 8
+1001: 9
+1010: 10
+
+So, let's iterate over that array:
+1. 0 ^ 4: we check bit by bit: 0 ^ 0 is 0 and 0 ^ 1 is 1, 1 ^ 1 is 0
+	=> we get 0100 from it. To put it simply, 4
+
+2. 4 ^ 1: 0100 ^ 0001 => 0101 which is 5
+3. 5 ^ 2:  0101 ^ 0010 => 0111 which is 7
+4. 7 ^ 1: 0111 ^ 0001 => 0110 which is 6
+5.  6 ^ 2: 0110 ^ 0010 => 0100 which is 4
+
+And 4 is our answer
         '''
     def singleNumber(self, nums: List[int]) -> int:
         xor = 0
