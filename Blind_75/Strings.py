@@ -146,6 +146,38 @@ class Codec:
         
         return s.split(chr(257))
 
+# second way
+class Codec:
+    def encode(self, strs: [str]) -> str:
+        result = []
+        for s in strs:
+            result.append(self.do_enc(s))
+        
+        return ''.join(result)
+    
+    def do_enc(self, string):
+        length = len(string)
+        return str(length) + '#' + string
+        
+
+    def decode(self, s: str) -> [str]:
+        result = []
+        idx = 0
+        
+        while idx < len(s):
+            j = idx
+            
+            while s[j] != '#':
+                j += 1
+            
+            length = int(s[idx:j])
+            word = s[j + 1: j + 1 + length]
+            result.append(word)
+            
+            idx = j + 1 + length
+        
+        return result
+
 # optimal
 # all you need to do is encode the length of x into 4 bytes ( why 4 bytes - integer size - 4 bytes = [8bits, 8bits, 8bits, 8bits])
 
