@@ -70,19 +70,51 @@ class Solution:
 
 # 4. Remove Nth Node From End of List
 class Solution:
+    # first
     def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
+        if head is None:
+            return None
+        
         length = 0
         curr = head
-        newHead = head
-        while length < n:
+        
+        while curr:
             curr = curr.next
             length += 1
         
-        if curr is None:
-            if head.next is None:
+        if length == 1:
+            return None
+        
+        if length == n:
+            head.val = head.next.val
+            head = head.next
+            return head
+        
+        count = length - n - 1
+        curr = head
+        
+        while count != 0:
+            curr = curr.next
+            count -= 1
+        
+        curr.next = curr.next.next
+        return head
+    
+    # second
+    def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
+        newHead = head
+        curr = head
+        length = 0
+        
+        while length != n:
+            length += 1
+            curr = curr.next
+        
+        if curr is None: # means head
+            if head.next is None: # means single node linked list
                 return None
             head.val = head.next.val
-            head.next = head.next.next
+            head = head.next
             return head
         
         while curr.next:
@@ -91,3 +123,4 @@ class Solution:
         
         newHead.next = newHead.next.next
         return head
+
