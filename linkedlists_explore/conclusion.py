@@ -46,3 +46,68 @@ class Solution:
             l2 = l2.next if l2 else None
         
         return head.next
+
+# 2. Flatten a Multilevel Doubly Linked List
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val, prev, next, child):
+        self.val = val
+        self.prev = prev
+        self.next = next
+        self.child = child
+"""
+
+class Solution:
+    # recursive
+    def flatten(self, head: 'Node') -> 'Node':
+        if not head:
+            return None
+        
+        tempHead = Node(None, None, head, None)
+        self.traverse(tempHead, head)
+        
+        tempHead.next.prev = None
+        return tempHead.next
+    
+    def traverse(self, prev, curr):
+        if curr is None:
+            return prev
+        
+        prev.next = curr
+        curr.prev = prev
+        
+        tempNext = curr.next
+        tail = self.traverse(curr, curr.child)
+        
+        curr.child = None
+        
+        return self.traverse(tail, tempNext)
+    
+    # iterative
+    def flatten(self, head: 'Node') -> 'Node':
+        if not head:
+            return None
+        
+        tempHead = Node(0, None, head, None)
+        stack = [head]
+        prev = tempHead
+        
+        while len(stack) != 0:
+            curr = stack.pop()
+            
+            curr.prev = prev
+            prev.next = curr
+            
+            if curr.next:
+                stack.append(curr.next)
+            
+            if curr.child:
+                stack.append(curr.child)
+                curr.child = None
+                
+            prev = curr
+        
+        tempHead.next.prev = None
+        
+        return tempHead.next
