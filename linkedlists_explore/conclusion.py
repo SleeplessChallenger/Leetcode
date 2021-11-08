@@ -111,3 +111,70 @@ class Solution:
         tempHead.next.prev = None
         
         return tempHead.next
+
+# 3. Insert into a Sorted Circular Linked List
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val=None, next=None):
+        self.val = val
+        self.next = next
+"""
+
+class Solution:
+    def insert(self, head: 'Node', insertVal: int) -> 'Node':
+        '''
+        Use 2 pointers and termination is when
+        `prev == head`
+        
+        3 general cases:
+        
+        1. insertVal is between max and min
+        => we'll insert it somewhere in the
+        list
+        I.e.: 3 -> 4 -> 1, insertVal = 2
+        Here we'll insert between 1 and 4,
+        precisely after 1 and before 3
+        
+        2. insertVal is bigger than max or
+        smaller than min. We find tail and
+        insert after it (as if < smallest,
+        still it'll be after tail as head)
+        
+        3. list contains uniform values
+        I.e. 3 -> 3 -> 3; insertVal = 0
+        
+        '''
+        if head is None:
+            var = Node(insertVal)
+            var.next = var
+            return var
+    
+        prev = head
+        curr = head.next
+        toInsert = False
+        
+        while True:
+            if prev.val <= insertVal <= curr.val:
+                toInsert = True
+                
+            # here prev is tail
+            elif prev.val > curr.val:
+                if insertVal >= prev.val: # if it's bigger than tail
+                    toInsert = True
+                elif insertVal <= curr.val: # if it's smaller than head
+                    toInsert = True
+                
+            if toInsert:
+                prev.next = Node(insertVal, curr)
+                return head
+            
+            prev = curr
+            curr = curr.next
+            
+            if prev == head:
+                break
+        
+        # third case
+        prev.next = Node(insertVal, curr)
+        return head
