@@ -178,3 +178,118 @@ class Solution:
         # third case
         prev.next = Node(insertVal, curr)
         return head
+
+# 4. Copy List with Random Pointer
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, x: int, next: 'Node' = None, random: 'Node' = None):
+        self.val = int(x)
+        self.next = next
+        self.random = random
+"""
+
+'''
+1. In recursive solution we iterate due to recursive stack
+2. In iterative solution we iterate due to separate node
+    that will break of the loop when it's finished
+'''
+class Solution:
+    # Remember that we return copy of
+    # .next or .random
+    
+    # Time: O(n) Space: O(n) Recursive
+    def copyRandomList(self, head: 'Node', visited=dict()) -> 'Node':
+        if head is None:
+            return None
+        
+        # critical as in Clone Graph
+        if head in visited:
+            return visited[head]
+        
+        node = Node(head.val, None, None)
+        visited[head] = node
+        
+        node.next = self.copyRandomList(head.next, visited)
+        node.random = self.copyRandomList(head.random, visited)
+        
+        return node
+    
+    # Iterative
+    def copyRandomList(self, head: 'Node', visited=dict()) -> 'Node':
+        if head is None:
+            return None
+        
+        # copy it as we need some node
+        # to return from the start
+        curr = head
+        new_head = Node(curr.val, None, None)
+        visited[curr] = new_head
+        
+        while curr != None:
+            new_head.next = self.find_node(curr.next, visited)
+            new_head.random = self.find_node(curr.random, visited)
+            
+            curr = curr.next
+            new_head = new_head.next
+            
+        return visited[head]
+            
+    def find_node(self, node, visited):
+        if node:
+            if node in visited:
+                return visited[node]
+            else:
+                temp = Node(node.val, None, None)
+                visited[node] = temp
+                return visited[node]            
+        else:
+            return None
+        
+    # Space: O(1)
+    def copyRandomList(self, head: 'Node', visited=dict()) -> 'Node':
+        if not head:
+            return None
+        
+        curr = head
+        
+        while curr:
+            temp = Node(curr.val, None, None)
+            temp.next = curr.next
+            curr.next = temp
+            
+            curr = temp.next
+        
+        curr = head
+
+        while curr:
+            # why .random.next? -> .random is a Node, but
+            # it points to particular index which we didn't
+            # change, hence we're to move one step further
+            curr.next.random = curr.random.next if curr.random else None
+            
+            curr = curr.next.next
+        
+        curr = head
+        node = curr.next
+        new_head = node
+        
+        while curr:
+            curr.next = node.next if node.next else None
+            curr = curr.next if curr.next else None
+            
+            if curr is None:
+                break
+                
+            node.next = curr.next
+            node = node.next
+            
+#             curr.next = curr.next.next
+#             node.next = node.next.next if node.next else None
+        
+#             curr = curr.next
+#             node = node.next
+        
+        return new_head
+
+
