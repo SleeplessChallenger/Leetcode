@@ -38,3 +38,74 @@ class Solution:
             right += 1
         
         return longest
+
+# 3. Third Maximum Number
+class Solution:
+    # ver 1. Time: n*log(n) Space: O(n)
+    def thirdMax(self, nums: List[int]) -> int:
+        nums.sort()
+        
+        # python 3.6+ hash table keeps in order
+        # as OrderedDict
+        ht = {}
+        for num in nums:
+            ht[num] = True
+        
+        if len(ht) < 3:
+            return max(list(ht.keys()))
+        
+        return list(ht.keys())[-3]
+    
+    # ver 2. Set and Delete
+    def thirdMax(self, nums: List[int]) -> int:
+        nums = set(nums)
+        
+        max_num = max(nums)
+        
+        if len(nums) < 3:
+            return max_num
+        
+        nums.remove(max_num)
+        sec_max = max(nums)
+        nums.remove(sec_max)
+        th_max = max(nums)
+        
+        return th_max
+    
+     # ver 3. Max set
+    def thirdMax(self, nums: List[int]) -> int:
+        seen = set()
+        
+        for i in range(3):
+            max_curr = self.find_max(seen, nums)
+            if max_curr is None:
+                return max(seen)
+            seen.add(max_curr)
+        
+        return min(seen)
+    
+    def find_max(self, seen, nums):
+        m_c = None
+        for num in nums:
+            if num in seen:
+                continue
+            if m_c is None or m_c < num:
+                m_c = num
+        
+        return m_c
+    
+    # ver 4. One set
+    def thirdMax(self, nums: List[int]) -> int:
+        res = set()
+        
+        for num in nums:
+            if num in res:
+                continue
+            res.add(num)
+            self.check(res)
+        
+        return min(res) if len(res) == 3 else max(res)
+    
+    def check(self, res):
+        if len(res) > 3:
+            res.remove(min(res))
