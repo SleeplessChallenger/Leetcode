@@ -153,3 +153,50 @@ class Solution:
                 node = node.right
         
         return result
+
+# 2. binary tree post-order traversal
+
+# recursive
+class Solution:
+    def postorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        if root is None:
+            return []
+        
+        arr = []
+        def dfs(node, arr):
+            if node.left:
+                dfs(node.left, arr)
+            if node.right:
+                dfs(node.right, arr)
+            
+            arr.append(node.val)
+
+        dfs(root, arr)
+        return arr
+
+    # iterative
+def postorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        '''
+        We put .left on top as we want to have
+        access to it at first
+        '''
+        if root is None:
+            return []
+        
+        stack = [(root, False)]
+        result = []
+        
+        while len(stack) != 0:
+            node, visited = stack.pop()
+            if visited:
+                result.append(node.val)
+            else:
+                # or we can dump .left/.right
+                # and make check: `if node`
+                stack.append((node, True))
+                if node.right:
+                    stack.append((node.right, False))
+                if node.left:
+                    stack.append((node.left, False))
+        
+        return result
