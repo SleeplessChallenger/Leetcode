@@ -157,21 +157,38 @@ class Solution:
         return leftNode and self.validateTree(node.right, node.val, upper)
 
 # 7. medium - Construct Binary Tree from Preorder and Inorder Traversal
-class Solution:
+    '''
+    1. First value in PreOrder is the root
+    2. Second value - left child
+    
+    1. left to the root in Inroder is left chunk
+    2. right to the root = right chunk
+    
+    => Always take first value in PreOrder traversal
+        and use it to find the idx in InOrder and then
+        partition on BEFORE idx & AFTER idx
+        
+    => In rec() calls we need to use + 1 as we want to
+        include current idx, but un `order` we want to
+        exclude the root, hence speaking about left
+        subtree: on purpose don't use + 1
+    '''
     def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
-        # `not` instead of `is None` as former catches []
-        # whilst latter doesn't
-        if not preorder or not inorder:
+        if len(preorder) == 0 or len(inorder) == 0:
             return None
         
-        root = preorder[0]
-        idx = 0
-        while inorder[idx] != root:
-            idx += 1
+        val = preorder[0]
+        i = 0
         
-        leftNode = self.buildTree(preorder[1:idx + 1], inorder[:idx])
-        rightNode = self.buildTree(preorder[idx + 1:], inorder[idx + 1:])
-        return TreeNode(root, leftNode, rightNode)
+        while i < len(inorder):
+            if inorder[i] == val:
+                break
+            i += 1
+        
+        left = self.buildTree(preorder[1:i + 1], inorder[:i])
+        right = self.buildTree(preorder[i + 1:], inorder[i + 1:])
+        
+        return TreeNode(val, left, right)
 
 # 8. medium - Kth Smallest Element in a BST
 # Definition for a binary tree node.
