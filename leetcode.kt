@@ -63,7 +63,54 @@ class Solution {
     }
 }
 
-// 3
+// 3 Lowest Common Ancestor of a Binary Tree
+/**
+ * Definition for a binary tree node.
+ * class TreeNode(var `val`: Int = 0) {
+ *     var left: TreeNode? = null
+ *     var right: TreeNode? = null
+ * }
+ */
+class Ancestor(var count: Int, var ancestor: TreeNode?)
 
+
+
+class Solution {
+    fun lowestCommonAncestor(root: TreeNode?, p: TreeNode?, q: TreeNode?): TreeNode? {
+        return this.traverse(root, p, q).ancestor
+    }
+    
+    fun traverse(node: TreeNode?, p: TreeNode?, q: TreeNode?): Ancestor {
+        var idx = 0
+        
+        val nodeLeft: TreeNode? = node?.left ?: null
+        val nodeRight: TreeNode? = node?.right ?: null
+        
+        val arr = listOf(nodeLeft, nodeRight)
+        
+        for(child in arr) {
+            if(child == null) {
+                continue
+            } else {
+            
+            val result = this.traverse(child, p, q)
+            
+            if(result.ancestor != null) return result
+            
+            idx += result.count
+            }
+        }
+        
+        if((p == node) || (q == node)) {
+            idx++
+        }
+        
+        val isParent: TreeNode? = if(idx == 2) node else null
+        
+        val finalResult = Ancestor(idx, isParent)
+        
+        return finalResult
+    }
+}
 
 
