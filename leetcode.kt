@@ -23,7 +23,7 @@ class Solution {
     }
 }
 
-// 2.
+// 2. Populating Next Right Pointers in Each Node
 /**
  * Definition for a Node.
  * class Node(var `val`: Int) {
@@ -113,4 +113,39 @@ class Solution {
     }
 }
 
-
+// 4. Count Univalue Subtrees
+/**
+ * Example:
+ * var ti = TreeNode(5)
+ * var v = ti.`val`
+ * Definition for a binary tree node.
+ * class TreeNode(var `val`: Int) {
+ *     var left: TreeNode? = null
+ *     var right: TreeNode? = null
+ * }
+ */
+class Solution {
+    fun countUnivalSubtrees(root: TreeNode?): Int {
+        val (result, _) = this.traverseTree(root)
+        return result
+    }
+    
+    fun traverseTree(node: TreeNode?): Pair<Int, Boolean> {
+        if(node == null) return Pair(0, true)
+        
+        val (leftCount, leftUni) = this.traverseTree(node.left)
+        val (rightCount, rightUni) = this.traverseTree(node.right)
+        var flag: Boolean = true
+        
+        if(leftUni != true || rightUni != true) flag = false
+        
+        if(node.left != null && node.left.`val` != node.`val`) flag = false
+        
+        if(node.right != null && node.right.`val` != node.`val`) flag = false
+        
+        if(flag == true) {
+            return Pair((leftCount + rightCount + 1), true)
+        } else return Pair((leftCount + rightCount), false)
+        
+    }
+}
