@@ -149,3 +149,154 @@ class Solution {
         
     }
 }
+
+// 5. Populating Next Right Pointers in Each Node II
+class Solution {
+    fun connect(root: Node?): Node? {
+        if(root == null) return null
+        
+        var queue = mutableListOf<Node?>(root)
+        val node_result = root
+        
+        while(queue.size != 0) {
+            val curr_size = queue.size
+            
+            for(i in 0 until curr_size){
+                val node: Node? = queue.removeAt(0)
+                
+                if(i < curr_size - 1){
+                    node!!.next = queue[0]
+                }
+                
+                if(node!!.left != null) {
+                    queue.add(node!!.left)
+                }
+                
+                if(node!!.right != null) {
+                    queue.add(node!!.right)
+                }
+            }
+        }
+        
+        return node_result
+    }
+}
+
+// 6. Serialize and Deserialize Binary Tree
+class Codec() {
+    fun serialize(root: TreeNode?): String {
+        if(root == null) return ""
+        
+        var all_nodes = mutableListOf<Int?>()
+        
+        fun serializeTree(node: TreeNode?) {
+            if(node == null) {
+                all_nodes.add(null)
+            } else {
+                all_nodes.add(node.`val`)
+                
+                serializeTree(node.left)
+                serializeTree(node.right)
+            }
+        }
+        
+        
+        serializeTree(root)
+        
+        return all_nodes.joinToString()
+    }
+
+    // Decodes your encoded data to tree.
+    fun deserialize(data: String): TreeNode? {
+        if(data == "") return null
+        
+        fun deserializeTree(nodes: MutableList<String>): TreeNode? {
+            // crucial to specify MutableList in params
+            if(nodes[0] == "null") {
+                nodes.removeAt(0)
+                return null
+            }
+            
+            var strNode: String = nodes[0]
+            // var strNode: String = nodes.removeAt(0)
+            
+            nodes.removeAt(0)
+            val node: TreeNode = TreeNode(strNode.toInt())
+            node.left = deserializeTree(nodes)
+            node.right = deserializeTree(nodes)
+            
+            return node
+        }
+        
+        var temp = data.split(',').map { i -> i.trim() }.toMutableList()
+        // var temp = data.split(',').toMutableList()
+        
+        return deserializeTree(temp)
+    }
+}
+
+// 7. Binary Search
+class Solution {
+    fun search(nums: IntArray, target: Int): Int {
+        var left: Int = 0
+        var right: Int = nums.size - 1
+        
+        while(left <= right) {
+            var middle: Int = (left + right) // 2
+            
+            if(nums[middle] == target) return middle
+            
+            else if(nums[middle] > target) {
+                right = middle - 1
+            } else {
+                left = middle + 1
+            }
+        }
+        
+        return -1
+    }
+}
+
+// 8. Sqrt(x)
+class Solution {
+    // binary search solution
+    fun mySqrt(x: Int): Int {
+        if(x < 2) return x
+        
+        var left = 2
+        var right = x / 2
+        
+        while(left <= right) {
+            var midd = left + (right - left) / 2
+            var squaredMidd: Long = midd.toLong() * midd.toLong()
+            
+            
+            if(squaredMidd > x) right = midd - 1
+            else if (squaredMidd < x) left = midd + 1
+            else return midd
+        }
+        
+        return right
+    }
+}
+
+// 9. Guess Number Higher or Lower
+class Solution:GuessGame() {
+    override fun guessNumber(n:Int):Int {
+        var left = 1
+        var right = n
+        
+        while (true){
+            var midd = left + (right - left) / 2
+            var result = guess(midd)
+            
+            if(result == 0){
+                return midd
+            } else if(result == -1) {
+                right = midd - 1
+            } else if(result == 1) {
+                left = midd + 1
+            }
+        }
+    }
+}
