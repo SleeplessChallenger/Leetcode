@@ -55,7 +55,7 @@ class Solution:
         while left <= right:
             middle = (left + right) // 2
             if isBadVersion(middle) == True:
-                right = middle - 1
+                right = middle
             # if there is bad to the right
             # => move left to find bad
    
