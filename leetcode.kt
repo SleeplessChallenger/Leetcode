@@ -300,3 +300,81 @@ class Solution:GuessGame() {
         }
     }
 }
+
+// 10. Search in Rotated Sorted Array
+class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        left = 0
+        right = len(nums) - 1
+        
+        while left <= right:
+            midd = (left + right) // 2
+            
+            if nums[midd] == target:
+                return midd
+            
+            # in cases when left == right
+            # we need to proceed, i.e. change value
+            # of left || right, hence <= is essential
+            # AND particularly in this `elif`.
+            # I.e. take [3,1] t=0
+            elif nums[midd] > nums[left]:
+                if nums[left] <= target and target < nums[midd]:
+                    right = midd - 1
+                else:
+                    left = midd + 1
+                    
+            elif nums[midd] <= nums[right]:
+                if nums[right] >= target and target > nums[midd]:
+                    left = midd + 1
+                else:
+                    right = midd - 1
+
+        return -1
+
+// 11. First Bad Version
+/* The isBadVersion API is defined in the parent class VersionControl.
+      def isBadVersion(version: Int): Boolean = {} */
+
+class Solution: VersionControl() {
+    // first version
+    override fun firstBadVersion(n: Int) : Int {
+    
+        var left: Int = 1
+        var right: Int = n
+        
+        while (left <= right) {
+            var midd = left + (right - left) / 2
+            val result: Boolean = isBadVersion(midd)
+            
+            if(result == false) {
+                left = midd + 1
+            } else if(isBadVersion(midd - 1) == false) {
+                return midd
+            } else {
+                right = midd - 1
+            }
+            
+        }
+        
+        return -1
+    }
+    
+    // second version
+    override fun firstBadVersion(n: Int) : Int {
+        var left = 1
+        var right = n
+        
+        while (left < right) {
+            var midd = left + (right - left) / 2
+            if(isBadVersion(midd)) {
+                right = midd
+            } else {
+                left = midd + 1
+            }
+        }
+        
+        return left
+}
+}
+
