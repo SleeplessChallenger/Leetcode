@@ -378,3 +378,64 @@ class Solution: VersionControl() {
 }
 }
 
+// 12. Find Peak Element
+class Solution {
+    // O(n) time
+    fun findPeakElement(nums: IntArray): Int {
+        for(i in 0 until nums.size - 1) {
+            if(nums[i] > nums[i+1]) return i
+        }
+        
+        return nums.size - 1
+    }
+    
+    // O(log n) time
+    fun findPeakElement(nums: IntArray): Int {
+        var left: Int = 0
+        var right: Int = nums.size - 1
+        
+        while (left < right) {
+            var midd: Int = left + (right - left) / 2
+            if(nums[midd] < nums[midd + 1]) {
+                left = midd + 1
+            } else if(nums[midd] > nums[midd + 1]) {
+                right = midd
+            }
+    }
+        return left
+}
+}
+
+// 13. Find Minimum in Rotated Sorted Array
+class Solution {
+    fun findMin(nums: IntArray): Int {
+        if(nums.size == 1) {
+            return nums[0]
+        }
+        
+        var left: Int = 0
+        var right: Int = nums.size - 1
+        
+        if(nums[left] < nums[right]) {
+            return nums[left]
+        }
+        
+        while (left < right) {
+            var midd: Int = left + (right - left) / 2
+            
+            if(nums[midd] > nums[midd + 1]) {
+                return nums[midd + 1]
+            } else if(nums[midd] < nums[midd - 1]) {
+                return nums[midd]
+            } else if(nums[midd] > nums[left]) {
+                left = midd + 1
+            } else if(nums[midd] < nums[right]) {
+                right = midd - 1
+            }
+        }
+        
+        return -1
+    }
+}
+
+
