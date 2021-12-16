@@ -438,4 +438,79 @@ class Solution {
     }
 }
 
+// 14. Search for a Range
+class Solution {
+    fun searchRange(nums: IntArray, target: Int): IntArray {
+        var result: IntArray = intArrayOf(-1,-1)
+        this.calc_nums(nums, result, true, target)
+        this.calc_nums(nums, result, false, target)
+        
+        return result
+    }
+    
+    fun calc_nums(nums: IntArray, result: IntArray, goLeft: Boolean, t: Int) {
+        var left: Int = 0
+        var right: Int = nums.size - 1
+        
+        while (left <= right) {
+            var midd: Int = left + (right - left) / 2
+            if(nums[midd] > t) {
+                right = midd - 1
+            } else if(nums[midd] < t) {
+                left = midd + 1
+            } else {
+                if(goLeft == true) {
+                    if(midd == 0 || nums[midd - 1] != t) {
+                        result[0] = midd
+                        return
+                    } else {
+                        right = midd - 1
+                    }
+                } else {
+                    if(midd == nums.size - 1 || nums[midd + 1] != t) {
+                        result[1] = midd
+                        return
+                    } else {
+                        left = midd + 1
+                    } 
+                }
+            }
+        }
+    }
+}
 
+// 15. Search in a Sorted Array of Unknown Size
+/**
+ * // This is ArrayReader's API interface.
+ * // You should not implement it, or speculate about its implementation
+ * class ArrayReader {
+ *     fun get(index: Int): Int {}
+ * }
+ */
+
+class Solution {
+    fun search(reader: ArrayReader, target: Int): Int {
+        var left: Int = 0
+        var right: Int = 1
+        
+        while(target > reader.get(right)) {
+            left = right
+            right = right * 2
+        }
+        
+        while(left <= right) {
+            var midd: Int = (left + (right - left) / 2) //.toInt()
+            val curr_result = reader.get(midd)
+            
+            if(curr_result == target) {
+                return midd
+            } else if(curr_result > target) {
+                right = midd - 1
+            } else if(curr_result < target) {
+                left = midd + 1
+            }
+        }
+        
+        return -1
+    }
+}
