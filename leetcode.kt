@@ -514,3 +514,359 @@ class Solution {
         return -1
     }
 }
+
+// 16. Closest Binary Search Tree Value
+import kotlin.math.*
+
+
+class Solution {
+    
+    // recursive
+    fun closestValue(root: TreeNode?, target: Double): Int {
+        var smallest: Int = root!!.`val`
+        
+        fun dfs(node: TreeNode, smallest: Int, target: Double):Int {
+            // if(node == null) {
+            //     return smallest
+            // }
+            
+            var newSmallest = smallest
+            
+            if(abs(node.`val` - target) < abs(smallest - target)) {
+                newSmallest = node.`val`
+            }
+            
+            if(node.`val` > target && node.left != null) {
+                return dfs(node.left!!, newSmallest, target)
+            } else if(node.`val` < target && node.right != null) {
+                return dfs(node.right!!, newSmallest, target)
+            } else {
+                return newSmallest
+            }
+        }
+
+        return dfs(root, smallest, target)
+    }
+    
+    // iterative
+    fun closestValue(root: TreeNode?, target: Double): Int {
+        var smallest = root!!.`val`
+        var node = root
+        
+        while(node != null) {
+            if(abs(node.`val` - target) < abs(smallest - target)) {
+                smallest = node.`val`
+            }
+            
+            if(node.`val` > target && node.left != null) {
+                node = node.left!!
+            } else if(node.`val` < target && node.right != null) {
+                node = node.right!!
+            } else {
+                break
+            }
+        }
+        
+        return smallest
+    }
+}
+
+// 17. Pow(x, n)
+import kotlin.math.*
+
+
+// Time: O(n)
+class Solution {
+    fun myPow(x: Double, n: Int): Double {
+        if(n >= 0) {
+            return this.calcPow(x, n, 1.0)
+        } else {
+            return this.calcPow(1/x, abs(n), 1.0)
+        }
+    }
+    
+    fun calcPow(x: Double, n: Int, base: Double): Double {
+        var newBase: Double = base
+        
+        for(i in 0 until n) {
+            newBase = newBase * x
+        }
+        
+        return newBase
+    }
+
+    // Time: O(log n)
+    fun myPow(x: Double, n: Int): Double {
+        if(n >= 0) {
+            return this.calcPow(x, n)
+        } else {
+            return this.calcPow(1/x, abs(n))
+        }
+    }
+    
+    fun calcPow(x: Double, n: Int): Double {
+        // 1 / 2 = 0
+        if(n == 0) {
+            return 1.0
+        }
+        // if n = 1 && x = 5: 1.0 * 1.0 * 5
+        // x^2 * x^2 * x = 5
+        var res: Double = this.calcPow(x, n/2)
+        
+        if(n % 2 == 0) {
+            return res * res
+        } else {
+            return res * res * x
+        }
+    }
+}
+
+// 18. Valid Perfect Square
+class Solution {
+    fun isPerfectSquare(num: Int): Boolean {
+        if(num <= 2) {
+            return true
+        }
+        
+        var left = 0
+        var right = num / 2
+        
+        while(left <= right) {
+            var midd_num = left + (right - left) / 2
+            var double_midd = midd_num.toLong() * midd_num.toLong()
+            
+            if(double_midd < num) {
+                left = midd_num + 1
+            } else if(double_midd > num) {
+                right = midd_num - 1
+            } else {
+                return true
+            }
+        }
+        
+        return false
+    }
+}
+
+// 19. Find Smallest Letter Greater Than Target
+class Solution {
+    fun nextGreatestLetter(letters: CharArray, target: Char): Char {
+        if(letters.last() <= target || letters.first() > target) {
+            return letters.first()
+        }
+        
+        var left: Int = 0
+        var right: Int = letters.size - 1
+        
+        while(left <= right) {
+            var midd: Int = left + (right - left) / 2
+            
+            if(letters[midd] <= target) {
+                left = midd + 1
+            } else {
+                right = midd - 1
+            }
+        }
+        
+        return letters[left]
+    }
+}
+
+// 20. Find K Closest Elements
+import kotlin.math.*
+
+
+class Solution {
+    // with sort: O(n * log n)
+    fun findClosestElements(arr: IntArray, k: Int, x: Int): List<Int> {
+        // 1. sort by diff between num & x
+        // 2. traverse with `k` as idx and put in arr
+        // 3. sort final array
+        val sortedArr = arr.sortedBy {abs(it - x)}
+        // sorted(arr, key=lambda num: abs(num-x))
+
+        var result: MutableList<Int> = mutableListOf<Int>()
+        
+        for(i in 0 until k) {
+            result.add(sortedArr[i])
+        }
+        
+        result.sort()
+        return result
+    }
+
+    // O(log n)
+    fun findClosestElements(arr: IntArray, k: Int, x: Int): List<Int> {
+        var left: Int = 0
+        var right: Int = arr.size - k
+        
+        while(left < right) {
+            var midd: Int = left + (right - left) / 2
+            
+            if(x - arr[midd] > arr[midd + k] - x) {
+                left = midd + 1
+            } else {
+                right = midd
+            }
+        }
+        
+        return arr.slice(left..left+k-1)
+    }
+}
+
+// 21. Find Minimum in Rotated Sorted Array II
+class Solution {
+    fun findMin(nums: IntArray): Int {
+        var left: Int = 0
+        var right: Int = nums.size - 1
+        
+        while(left <= right) {
+            var mid: Int = left + (right - left) / 2
+            if(nums[mid] < nums[right]) {
+                right = mid
+            } else if(nums[mid] > nums[right]) {
+                left = mid + 1
+            } else  { // nums[mid] == nums[right]
+                right = right - 1
+            }
+        }
+        
+        return nums[left]
+    }
+}
+
+// 22. Intersection of Two Arrays
+class Solution {
+    fun intersection(nums1: IntArray, nums2: IntArray): IntArray {
+        if(nums1.size < nums2.size) {
+            return this.get_intersection(nums1, nums2)
+        } else {
+            return this.get_intersection(nums2, nums1)
+        }
+    }
+    
+    fun get_intersection(small: IntArray, big: IntArray): IntArray {
+        
+        var result = mutableListOf<Int>()
+        
+        val small_set = small.toSet()
+        val big_set = big.toSet()
+        
+        for(num in small_set) {
+            if(num in big_set) {
+                result.add(num)
+            }
+        }
+        
+        return result.toIntArray()
+    }
+}
+
+// 23. Intersection of Two Arrays II
+class Solution {
+    fun intersect(nums1: IntArray, nums2: IntArray): IntArray {
+        if(nums1.size < nums2.size) {
+            return this.get_nums(nums1, nums2)
+        } else {
+            return this.get_nums(nums2, nums1)
+        }
+    }
+    
+    fun get_nums(small: IntArray, big: IntArray): IntArray {
+        var result = mutableListOf<Int>()
+        var ht = mutableMapOf<Int, Int>()
+        
+        for(num in big) {
+            if(!ht.containsKey(num)){
+                ht[num] = 0
+            }
+            
+            ht[num] = ht[num]!! + 1
+             
+        }
+
+        for(num in small) {
+            if(ht.containsKey(num) && ht[num] != 0) {
+                result.add(num)
+                ht[num] = ht[num]!! - 1
+            }
+        }
+        
+        return result.toIntArray()
+    }
+}
+
+class Solution {
+    fun twoSum(numbers: IntArray, target: Int): IntArray {
+        var result = mutableListOf<Int>()
+        
+        for(i in 0 until numbers.size - 1) {
+            var left = i + 1
+            var right = numbers.size - 1
+            
+            var curr_diff = target - numbers[i]
+            var flag: Boolean = false
+            
+            while(left <= right) {
+                var midd = left + (right - left) / 2
+                if(numbers[midd] == curr_diff) {
+                    result.add(i+1)
+                    result.add(midd+1)
+                    break
+                } else if(numbers[midd] < curr_diff) {
+                    left = midd + 1
+                } else {
+                    right = midd - 1
+                }
+            }
+            
+            if(result.size != 0) {
+                break
+            }
+        }
+        
+        return result.toIntArray()
+    }
+}
+
+// 24. Find the Duplicate Number
+import kotlin.math.*
+
+
+class Solution {
+    fun findDuplicate(nums: IntArray): Int {
+        var curr_abs: Int = 0
+        
+       for(num in nums) {
+            curr_abs = abs(num)
+            if(nums[curr_abs-1] < 0) {
+                break
+            }
+            nums[curr_abs-1] *= -1
+       }
+       
+       return curr_abs
+    }
+    
+    fun findDuplicate(nums: IntArray): Int {
+        var slow: Int = nums[0]
+        var fast: Int = nums[0]
+        
+        while(true) {
+            slow = nums[slow]
+            fast = nums[nums[fast]]
+            
+            if(slow == fast) {
+                break
+            }
+        }
+        
+        var newStart: Int = nums[0]
+        while(newStart != fast) {
+            fast = nums[fast]
+            newStart = nums[newStart]
+        }
+        
+        return newStart
+    }
+}
