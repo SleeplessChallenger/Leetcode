@@ -115,3 +115,49 @@ class Solution:
                 right = pivot - 1
         
         return left + k
+
+# 3. Kth Largest Element in an Array
+class Solution:
+    # Time: O(n*log n)
+    def findKthLargest(self, nums: List[int], k: int) -> int:
+        nums.sort()
+        return nums[-k]
+    
+    def findKthLargest(self, nums: List[int], k: int) -> int:
+        """
+        1. put values in ht with coutn of occurence
+        2. keep max value
+        3. start loop by checking if we've reached k AND max_value
+            is in ht as the following example may ruin:
+            [-1,2,0]  k = 2
+        4. if curr max_value NOT in ht: just decrease count
+            else:
+            4.1 decrease k
+            4.2 decrease count of max_value in ht
+            4.3 ONLY if count in ht is 0, decrease max_value
+            4.4 else proceed with current max_value as duplicates
+                are considered unique
+            
+        """
+        ht = {}
+        max_value = float('-inf')
+        
+        for num in nums:
+            max_value = max(num, max_value)
+            if num not in ht:
+                ht[num] = 0
+            ht[num] += 1
+        
+        while True:
+            if k == 1 and max_value in ht:
+                return max_value
+            
+            if max_value in ht:
+                k -= 1
+                ht[max_value] -= 1
+                if ht[max_value] == 0:
+                    max_value -= 1
+                else:
+                    continue
+            else:
+                max_value -= 1
