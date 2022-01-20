@@ -869,4 +869,587 @@ class Solution {
         
         return newStart
     }
+    
+    fun findDuplicate(nums: IntArray): Int {
+        var left: Int = 1
+        var right: Int = nums.size - 1
+        
+        var duplicate: Int = 0
+        
+        while(left <= right) {
+            var midd: Int = left + (right - left) / 2
+            var count = this.get_values(midd, nums)
+            
+            if(count > midd) {
+                duplicate = midd
+                right = midd - 1
+            } else {
+                left = midd + 1
+            }
+        }
+        
+        return duplicate
+    }
+    
+    fun get_values(midd: Int, nums: IntArray): Int {
+        var count: Int = 0
+        
+        for(num in nums) {
+            if(num <= midd) {
+                count += 1
+            }
+        }
+        
+        return count
+    }
+}
+
+// 25. Inorder Successor in BST
+class Solution {
+    fun inorderSuccessor(root: TreeNode?, p: TreeNode?): TreeNode? {
+        var currNode: TreeNode? = null
+        var node = root
+        
+        while(node != null) {
+            if(node.`val` > p!!.`val`) {
+                currNode = node
+                node = node.left
+            } else {
+                node = node.right
+            }
+        }
+        
+        return currNode
+    }
+
+// 26. Search in a Binary Search Tree
+class Solution {
+    fun searchBST(root: TreeNode?, `val`: Int): TreeNode? {
+        if(root == null) {
+            return null
+        }
+        
+        if(root.`val` > `val`) {
+            return this.searchBST(root.left, `val`)
+        } else if(root.`val` < `val`) {
+            return this.searchBST(root.right, `val`)
+        } else {
+            return root
+        }
+    }
+}
+
+
+// 27. Median of Two Sorted Arrays
+import kotlin.math.*
+
+
+class Solution {
+    fun findMedianSortedArrays(nums1: IntArray, nums2: IntArray): Double {
+        if(nums1.size > nums2.size) {
+            return this.get_median(nums2, nums1)
+        } else {
+            return this.get_median(nums1, nums2)
+        }
+    }
+    
+    fun get_median(small: IntArray, big: IntArray): Double {
+        var left: Int = 0
+        var right: Int = small.lastIndex
+        
+        var total: Int = small.size + big.size
+        var half_size: Int = total / 2
+
+        while(true) {    
+            // we need `- 1 // 2` become -1, not 0 as it's now
+            var midd: Int = left + (right - left) % 2
+            var midd_big: Int = half_size - midd - 2
+            var small_midd_val: Int = 0
+            var small_midd_right_val: Int = 0
+            var big_midd_val: Int = 0
+            var big_midd_right_val: Int = 0
+            
+            if(midd >= 0) {
+                small_midd_val = small[midd]
+            } else {
+                //const val NEGATIVE_INFINITY: Float
+                small_midd_val = -1000000
+            }
+            
+            if(midd+1 <= small.lastIndex) {
+                small_midd_right_val = small[midd+1]
+            } else {
+                small_midd_right_val = 1000000
+            }
+            
+            if(midd_big >= 0) {
+                big_midd_val = big[midd_big]
+            } else {
+                big_midd_val = -1000000
+            }
+            
+            if(midd_big+1 <= big.lastIndex) {
+                big_midd_right_val = big[midd_big+1]
+            } else {
+                big_midd_right_val = 1000000
+            }
+            
+            if(small_midd_val <= big_midd_right_val && big_midd_val <= small_midd_right_val) {
+                if(total % 2 == 0) {
+                    return (max(small_midd_val, big_midd_val).toDouble() + min(small_midd_right_val, big_midd_right_val).toDouble()) / 2
+                } else {
+                    return min(small_midd_right_val, big_midd_right_val).toDouble()
+                }
+            } else if(small_midd_val > big_midd_right_val) {
+                right = midd - 1
+            } else {
+                left = midd + 1
+            }
+            
+        }
+    }
+}
+
+// 28. Kth Largest Element in an Array
+import kotlin.math.*
+
+class Solution {
+    brute-force
+    fun findKthLargest(nums: IntArray, k: Int): Int {
+        nums.sort()
+        return nums[nums.size - k]
+    }
+    
+    hashtable
+    fun findKthLargest(nums: IntArray, k: Int): Int {
+        var max_value = -1
+        var hashtable = mutableMapOf<Int,Int>()
+        var t: Int = k
+        
+        for(num in nums) {
+            max_value = max(max_value, num)
+            
+            if(!hashtable.containsKey(num)) {
+                hashtable[num] = 0
+            } 
+            
+            hashtable[num] = hashtable[num]!! + 1
+        }
+
+        while(true) {
+            if(t == 1 && hashtable.containsKey(max_value)) {
+                return max_value
+            } else {
+                if(hashtable.containsKey(max_value)) {
+                    hashtable[max_value] = hashtable[max_value]!! - 1
+                    t -= 1
+                    if(hashtable.get(max_value) == 0) {
+                        max_value -= 1
+                    }
+                } else {
+                    max_value -= 1
+                }
+            }
+        }
+    }
+    
+    // Quickselect
+    fun findKthLargest(nums: IntArray, k: Int): Int {
+        var t: Int = nums.size - k
+        return this.get_result(nums, t, 0, nums.size - 1)
+    }
+    
+    fun get_result(nums: IntArray, t: Int, start: Int, end: Int): Int {  
+        var end = end
+        var start = start
+        
+        while(true) {
+            var pivot: Int = start
+            var left: Int = pivot + 1
+            var right: Int = end
+            
+            while(left <= right) {
+                if(nums[pivot] < nums[left] && nums[pivot] > nums[right]) {
+                    this.swap(nums, left, right)
+                }
+                
+                if(nums[pivot] >= nums[left]) {
+                    left += 1
+                }
+                
+                if(nums[pivot] <= nums[right]) {
+                    right -= 1
+                }
+                
+//                 when {
+//                     nums[pivot] < nums[left] && nums[pivot] > nums[right] -> {
+//                         this.swap(nums, left, right)
+//                     }
+//                 }
+//                 when {
+//                     nums[pivot] >= nums[left] -> {
+//                         left += 1
+//                     }
+//                 }
+//                 when {
+//                     nums[pivot] <= nums[right] -> {
+//                         right -= 1
+//                     }
+//                 }
+            }
+            
+            this.swap(nums, right, pivot)
+            
+            if(right > t) {
+                end = right - 1
+            } else if(right < t) {
+                start = right + 1
+            } else {
+                return nums[t]
+            }
+        }
+    }
+    // [3,2,1,5,6,4] 2
+    // [2,1] 2
+    fun swap(nums: IntArray, l: Int, r: Int) {
+        // nums[l], nums[r] = nums[r], nums[l]
+        val a = nums[l]
+        val b = nums[r]
+        nums[l] = b
+        nums[r] = a
+    }
+}
+
+// 29. Insert into a Binary Search Tree
+class Solution {
+    fun insertIntoBST(root: TreeNode?, `val`: Int): TreeNode? {
+        if(root == null) {
+            return TreeNode(`val`)
+        }
+        fun putValue(root: TreeNode?, newNode: Int) {
+            if(root!!.`val` < newNode) {
+                if(root.right != null) {
+                    putValue(root.right, newNode)
+                } else {
+                    root!!.right = TreeNode(newNode)
+                } 
+            } else {
+                if(root.left != null) {
+                    putValue(root.left, newNode)
+                } else {
+                    root!!.left = TreeNode(newNode)
+                }
+            }
+        }
+        putValue(root, `val`)
+        return root
+    }
+}
+
+// 30. Binary Search Tree Iterator
+class BSTIterator(root: TreeNode?) {
+    private var nodes = mutableListOf<Int>()
+    private var idx: Int = 0
+    
+    init {
+        this.traverseNodes(root)
+    }
+    
+    
+    fun next(): Int {
+        val return_node = this.nodes[this.idx]
+        this.idx += 1
+        return return_node
+    }
+
+    fun hasNext(): Boolean {
+        when {
+            this.idx < this.nodes.size -> {
+                return true
+            } else -> {
+                return false
+            }
+        }
+    }
+    
+    fun traverseNodes(node: TreeNode?) {
+        if(node!!.left != null) {
+            this.traverseNodes(node.left)
+        }
+        this.nodes.add(node.`val`)
+        if(node!!.right != null) {
+            this.traverseNodes(node.right)
+        }
+    }
+
+}
+
+// O(1) Space
+class BSTIterator(root: TreeNode?) {
+
+    private var stack = mutableListOf<TreeNode>()
+    
+    init {
+        this.goLeft(root)    
+    }
+    
+    fun next(): Int {
+        var currNode: TreeNode = this.stack[this.stack.size - 1]
+        this.stack.remove(currNode)
+        // var currNode = this.stack.removeLast()
+        
+        if(currNode.right != null) {
+            this.goLeft(currNode.right)
+        }
+        return currNode.`val`
+    }
+    
+    fun hasNext(): Boolean {
+        return this.stack.size != 0
+    }
+    
+    fun goLeft(node: TreeNode?) {
+        var currNode: TreeNode? = node
+        
+        while(currNode != null) {
+            this.stack.add(currNode)
+            currNode = currNode.left
+        }
+    }
+    
+}
+
+// 31. Delete Node in a BST
+/**
+ * Example:
+ * var ti = TreeNode(5)
+ * var v = ti.`val`
+ * Definition for a binary tree node.
+ * class TreeNode(var `val`: Int) {
+ *     var left: TreeNode? = null
+ *     var right: TreeNode? = null
+ * }
+ */
+class Solution {
+    fun deleteNode(root: TreeNode?, key: Int, p: TreeNode?=null): TreeNode? {
+        var node: TreeNode? = root
+        var parent: TreeNode? = p
+        
+        while(node != null) {
+            if(node.`val` > key) {
+                parent = node
+                node = node!!.left
+            } else if(node.`val` < key) {
+                parent = node
+                node = node!!.right
+            } else {
+                if(node.left != null && node.right != null) {
+                    val currNodeValue: Int = this.findNode(node.right)
+                    node.`val` = currNodeValue
+                    this.deleteNode(node.right, node.`val`, node)
+                } else if(parent == null) {
+                    if(node.left != null) {
+                        node.right = node.left.right
+                        node.`val` = node.left.`val`
+                        node.left = node.left.left
+                    } else if(node.right != null) {
+                        node.left = node.right.left
+                        node.`val` = node.right.`val`
+                        node.right = node.right.right
+                    } else {
+                        return null
+                    }
+                } else if(parent.left == node) {
+                    parent.left = when {
+                        node.right != null -> {
+                            node!!.right 
+                        } else -> {
+                            node!!.left
+                        }
+                    }
+                } else if(parent.right == node) {
+                    parent.right = when {
+                        node.left != null -> {
+                            node!!.left
+                        } else -> {
+                            node!!.right
+                        }
+                    }
+                } else {
+                    break
+                }
+            }
+        }
+        
+        return root
+    }
+    
+    fun findNode(node: TreeNode?): Int {
+        var currNode: TreeNode? = node
+        while(currNode!!.left != null) {
+            currNode = currNode!!.left
+        }
+        
+        return currNode!!.`val`
+    }
+}
+
+// 32. Validate Binary Search Tree
+class Solution {
+    fun isValidBST(root: TreeNode?): Boolean {
+        if(root == null) {
+            return true
+        }
+        return this.checkValid(root.left, null, root.`val`) && this.checkValid(root.right, root.`val`, null)
+    }
+    
+    fun checkValid(node: TreeNode?, lower: Int?, upper: Int?): Boolean {
+        if(node == null) {
+            return true
+        }
+        val currVal: Int = node.`val`
+        if((lower == null || currVal > lower!!) && (upper == null || currVal < upper!!)) {
+            return this.checkValid(node.left, lower, currVal) && this.checkValid(node.right, currVal, upper)
+        }
+        return false
+    }
+}
+
+// 33. Contains Duplicate
+class Solution {
+    // sorting
+    fun containsDuplicate(nums: IntArray): Boolean {
+        nums.sort()
+        for(i in 1 until nums.size) {
+            if(nums[i] == nums[i-1]) {
+                return true
+            }
+        }
+        return false
+    }
+    
+    // ht
+    fun containsDuplicate(nums: IntArray): Boolean {
+        var ht = mutableMapOf<Int,Boolean>()
+        
+        for(num in nums) {
+            if(ht.containsKey(num)) {
+                return true
+            }
+            ht[num] = true
+        }
+        
+        return false
+    }
+}
+
+// 34. Balanced Binary Tree
+import kotlin.math.*
+
+class TreeInfo(val height: Int, val isBalanced: Boolean)
+
+class Solution {
+    // first ver.
+    fun isBalanced(root: TreeNode?): Boolean {
+        return this.traverseTree(root).isBalanced
+    }
+    
+    fun traverseTree(root: TreeNode?): TreeInfo {
+        if(root == null) {
+            return TreeInfo(-1, true)
+        }
+        
+        val leftBranch: TreeInfo = this.traverseTree(root.left)
+        val rightBranch: TreeInfo = this.traverseTree(root.right)
+        
+        val isBalanced: Boolean = leftBranch.isBalanced &&
+            rightBranch.isBalanced &&
+            abs(leftBranch.height - rightBranch.height) <= 1
+        
+        val currHeight = 1 + max(leftBranch.height, rightBranch.height)
+        
+        return TreeInfo(currHeight, isBalanced)
+    }
+    
+    // second ver.
+    fun isBalanced(root: TreeNode?): Boolean {
+        fun traverseLevels(node: TreeNode?): Int {
+            if(node == null) {
+                return 0
+            }
+            return max(traverseLevels(node.left), traverseLevels(node.right)) + 1
+        }
+        
+        if(root == null) {
+            return true
+        }
+        
+        return abs(traverseLevels(root.left) - traverseLevels(root.right)) <= 1 &&
+            this.isBalanced(root.left) && this.isBalanced(root.right)
+    }
+}
+
+// 35. Range Sum of BST
+class Solution {
+    // Non-optimal solution
+    fun rangeSumBST(root: TreeNode?, low: Int, high: Int): Int {
+        var allNodes = mutableListOf<Int>()
+        
+        fun traverse(node: TreeNode?): Unit {
+            if(node == null) {
+                return
+            }
+            if(node.`val` >= low && node.`val` <= high) {
+                allNodes.add(node.`val`)
+            }
+            
+            if(node.left != null) {
+                traverse(node.left)
+            }
+            
+            if(node.right != null) {
+                traverse(node.right)
+            }
+        }
+        
+        traverse(root)
+        
+        var total: Int = 0
+        for(node in allNodes) {
+            total += node
+        }
+        
+        return total
+    }
+}
+    
+    // Optimal solution
+    
+class Solution(var total:Int = 0) { 
+    
+    fun rangeSumBST(root: TreeNode?, low: Int, high: Int): Int {
+        this.traverseNodes(root, low, high)
+        
+        return this.total
+    }
+    
+    fun traverseNodes(node: TreeNode?, low: Int, high: Int): Unit {
+        if(node == null) {
+            return
+        }
+        
+        if(node!!.`val` >= low && node.`val` <= high) {
+            this.total += node.`val`
+        }
+        
+        if(node.`val` > low) {
+            this.traverseNodes(node.left, low, high)
+        }
+        
+        if(node.`val` < high) {
+            this.traverseNodes(node!!.right, low, high)
+        }
+        
+        return
+    }
 }
