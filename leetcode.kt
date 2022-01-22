@@ -1453,3 +1453,116 @@ class Solution(var total:Int = 0) {
         return
     }
 }
+
+// 36. Binary Search Tree Iterator
+
+/**
+ * Example:
+ * var ti = TreeNode(5)
+ * var v = ti.`val`
+ * Definition for a binary tree node.
+ * class TreeNode(var `val`: Int) {
+ *     var left: TreeNode? = null
+ *     var right: TreeNode? = null
+ * }
+ */
+class BSTIterator(root: TreeNode?) {
+    private var nodes = mutableListOf<Int>()
+    private var idx: Int = 0
+    
+    init {
+        this.traverseNodes(root)
+    }
+    
+    
+    fun next(): Int {
+        val return_node = this.nodes[this.idx]
+        this.idx += 1
+        return return_node
+    }
+
+    fun hasNext(): Boolean {
+        when {
+            this.idx < this.nodes.size -> {
+                return true
+            } else -> {
+                return false
+            }
+        }
+    }
+    
+    fun traverseNodes(node: TreeNode?) {
+        if(node!!.left != null) {
+            this.traverseNodes(node.left)
+        }
+        this.nodes.add(node.`val`)
+        if(node!!.right != null) {
+            this.traverseNodes(node.right)
+        }
+    }
+
+}
+
+// O(1) Space
+class BSTIterator(root: TreeNode?) {
+
+    private var stack = mutableListOf<TreeNode>()
+    
+    init {
+        this.goLeft(root)    
+    }
+    
+    fun next(): Int {
+        var currNode: TreeNode = this.stack[this.stack.size - 1]
+        this.stack.remove(currNode)
+        // var currNode = this.stack.removeLast()
+        
+        if(currNode.right != null) {
+            this.goLeft(currNode.right)
+        }
+        return currNode.`val`
+    }
+    
+    fun hasNext(): Boolean {
+        return this.stack.size != 0
+    }
+    
+    fun goLeft(node: TreeNode?) {
+        var currNode: TreeNode? = node
+        
+        while(currNode != null) {
+            this.stack.add(currNode)
+            currNode = currNode.left
+        }
+    }
+    
+}
+
+
+// concise Kotlin-Style: val + iterator
+class BSTIterator(root: TreeNode?) {
+    private val nodes = root?.let{ traverseNodes(it) } ?: emptyList()
+    private val nodeIterator = nodes.iterator()
+    
+    fun next(): Int {
+        return nodeIterator.next()
+    }
+    
+    fun hasNext(): Boolean {
+        return nodeIterator.hasNext()
+    }
+    
+    fun traverseNodes(node: TreeNode): List<Int> {
+        val leftNodes = node.left?.let{ traverseNodes(it) } ?: emptyList()
+        
+        // val leftNodes = if(node.left != null) {
+        //     traverseNodes(node.left)
+        // } else {
+        //     emptyList()
+        // }
+        
+        val rightNodes = node.right?.let { traverseNodes(it) } ?: emptyList()
+        
+        return leftNodes + node.`val` + rightNodes
+    }    
+}
