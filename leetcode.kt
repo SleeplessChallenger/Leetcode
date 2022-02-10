@@ -1566,3 +1566,432 @@ class BSTIterator(root: TreeNode?) {
         return leftNodes + node.`val` + rightNodes
     }    
 }
+
+// 37. Sum of Left Leaves
+/**
+ * Example:
+ * var ti = TreeNode(5)
+ * var v = ti.`val`
+ * Definition for a binary tree node.
+ * class TreeNode(var `val`: Int) {
+ *     var left: TreeNode? = null
+ *     var right: TreeNode? = null
+ * }
+ */
+class Solution {
+    
+    // recursive
+    var total: Int = 0
+    
+    fun sumOfLeftLeaves(root: TreeNode?): Int {
+        if(root == null) {
+            return 0
+        }
+        
+        start_traversal(root)
+         
+         return total
+    }
+    
+    fun start_traversal(node: TreeNode): Unit {
+        if(node.left != null && node.left.left == null
+            && node.left.right == null) {
+            total += node.left.`val`
+        }
+        
+        if(node.left != null) {
+            start_traversal(node.left)
+        }
+        
+        if(node.right != null) {
+            start_traversal(node.right)
+        }
+    }
+    
+    // iterative
+    
+    var stack = mutableListOf<TreeNode>()
+    var total: Int = 0
+    
+    fun sumOfLeftLeaves(root: TreeNode?): Int {
+        if(root == null) {
+            return 0
+        }
+        
+        traverse_tree(root)
+        
+        return total
+    }
+        
+    
+    fun traverse_tree(root: TreeNode): Unit {
+        stack.add(root)
+        
+        while(stack.size != 0) {
+            val currNode = stack[stack.size - 1]
+            stack.remove(currNode)
+            
+            if(currNode.left != null &&
+                    currNode.left.left == null &&
+                    currNode.left.right == null) {
+                total += currNode.left.`val`
+            }
+            
+            // append right at first as
+            // `stack` priotirize tip
+            // => put `.left` afterwards
+            if(currNode.right != null) {
+                stack.add(currNode.right)
+            }
+            
+            if(currNode.left != null) {
+                stack.add(currNode.left)
+            }
+        }
+    }
+    
+    // morris traversal
+    fun sumOfLeftLeaves(root: TreeNode?): Int {
+        if(root == null) {
+            return 0
+        }
+        
+        var total: Int = 0
+        var node: TreeNode = root
+        
+        while(node != null) {
+            if(node.left == null) {
+                if(node.right != null) {
+                    node = node.right
+                } else {
+                    break
+                }
+            } else {
+                // if .left != null
+                var currLeftNode = node.left
+                if(currLeftNode.left == null && currLeftNode.right == null) {
+                    total += currLeftNode.`val`
+                }
+                
+                while(currLeftNode.right != null && currLeftNode.right != node) {
+                    currLeftNode = currLeftNode.right
+                }
+                
+                if(currLeftNode.right == null) {
+                    currLeftNode.right = node
+                    node = node.left
+                } else {
+                    // means it has already a link
+                    currLeftNode.right = null
+                    if(node.right != null) {
+                        node = node.right
+                    } else {
+                        break
+                    }
+                }
+            }
+        }
+        
+        return total
+    }
+}
+
+// 38. Two Sum
+class Solution {
+    fun twoSum(nums: IntArray, target: Int): IntArray {
+        var first: Int = 0
+        var second: Int = 0
+        
+        val ht = HashMap<Int, Int>()
+        
+        for(i in 0 until nums.size) {
+            val diff: Int = target - nums[i]
+            if(ht.containsKey(diff)) {
+                first = i
+                second = ht[diff]!!
+                break
+            } else {
+                val currValue = nums[i]
+                ht.put(currValue, i)
+            }
+        }
+        return intArrayOf(first, second)
+    }
+}
+
+// 39. Valid Palindrome
+class Solution {
+    // 1. remove non-alphanumeric 2. remove whitespaces 3. lowercase
+    
+    // recursive
+    fun isPalindrome(s: String): Boolean {
+        val preprocessesList: List<Char> = preprocess(s)
+
+        return mainAction(preprocessesList)
+    }
+        
+    fun mainAction(preprocessesList: List<Char>): Boolean {
+        if (preprocessesList.size == 0 || preprocessesList.size == 1) {
+            return true
+        } else if (preprocessesList.size == 2) {
+            return preprocessesList[0] == preprocessesList[1]
+        } else {
+            if (preprocessesList.first() == preprocessesList.last()) {
+                return mainAction(
+                    preprocessesList.subList(1, preprocessesList.size-1)
+                )
+            } else {
+                return false
+            }
+        }
+        
+    }
+    
+    fun preprocess(currStr: String): List<Char> {
+        val filteredList: List<Char> = currStr
+            .filterNot { it.isWhitespace() }
+            .filter { it.isLetterOrDigit() }
+            .toList()
+        
+        val resultList: List<Char> = filteredList.map { it.toLowerCase() }
+        
+        return resultList
+    }
+    
+    // iterative
+    fun isPalindrome(s: String): Boolean {
+        val preprocessedList: List<Char> = preprocess(s)
+        
+        var i: Int = 0
+        var j: Int = preprocessedList.size - 1
+        
+        while(i <= j) {
+            val leftChar: Char = preprocessedList[i]
+            val rightChar: Char = preprocessedList[j]
+            
+            if (leftChar != rightChar) {
+                return false
+            }
+            i += 1
+            j -= 1
+        }
+        
+        return true
+    }
+    
+    
+    fun preprocess(currString: String): List<Char> {
+        val filteredList: List<Char> = currString
+            .filterNot { it.isWhitespace() }
+            .filter { it.isLetterOrDigit() }
+            .toList()
+            .map { it.toLowerCase() }
+        
+        return filteredList
+    }
+}
+
+// 40. Can Place Flowers
+class Solution {
+    // O(n) Ordinary
+    fun canPlaceFlowers(flowerbed: IntArray, n: Int): Boolean {
+        var count: Int = 0
+
+        for(i in 0 until flowerbed.size) {
+            if(flowerbed[i] == 0) {
+                if(i == 0 || flowerbed[i-1] == 0) {
+                    if(i == flowerbed.size-1 || flowerbed[i+1] == 0) {
+                        flowerbed[i] = 1
+                        count += 1
+                    }
+                } else {
+                    continue // i != 0 AND i-1 is already 1
+                }
+            } else {
+                continue // no need to check as already 1
+            }
+        }
+
+        return count >= n
+    }
+
+    // O(n) Optimized
+    fun canPlaceFlowers(flowerbed: IntArray, n: Int): Boolean {
+        var count: Int = 0
+
+        for(i in 0 until flowerbed.size) {
+            if(flowerbed[i] == 0) {
+                if(i == 0 || flowerbed[i-1] == 0) {
+                    if(i == flowerbed.size-1 || flowerbed[i+1] == 0) {
+                        flowerbed[i] = 1
+                        count += 1
+                    }
+                }
+            }
+
+            if(count >= n) {
+                return true
+            }
+        }
+
+        return false
+    }
+}
+
+// 41. Symmetric Tree
+class Solution {
+    fun isSymmetric(root: TreeNode?): Boolean {
+        if(root == null) {
+            return true
+        }
+        return checkIsSymmetric(root.left, root.right)
+    }
+
+    fun checkIsSymmetric(leftTree: TreeNode?, rightTree: TreeNode?): Boolean {
+        if(leftTree == null && rightTree == null) {
+            return true
+        } else if((leftTree == null || rightTree == null) ||
+            leftTree.`val` != rightTree.`val`) {
+            return false
+        } else {
+            return checkIsSymmetric(leftTree.left, rightTree.right) &&
+                    checkIsSymmetric(leftTree.right, rightTree.left)
+        }
+    }
+}
+
+// 42. Plus One
+class Solution {
+    fun plusOne(digits: IntArray): IntArray {
+        var allDigits: MutableList<Int> = digits.toMutableList()
+        val length: Int = digits.size
+        
+        for(i in 0 until length) {
+            var idx: Int = length - i - 1
+            
+            if(allDigits[idx] == 9) {
+                allDigits[idx] = 0
+            } else {
+                allDigits[idx] = allDigits[idx] + 1
+                return allDigits.toIntArray()
+            }
+        }
+        
+        allDigits.add(0, 1)
+        return allDigits.toIntArray()
+    }
+}
+
+
+// 43. Move Zeroes
+class Solution {
+    fun moveZeroes(nums: IntArray): Unit {
+        var j: Int = 0
+        var i: Int = 0
+        
+        while (j < nums.size) {
+            while (j < nums.size && nums[j] == 0) {
+                j += 1
+            }
+            
+            if(j > nums.size - 1) {
+                break
+            }
+            
+            if(nums[i] == 0) {
+                swap(i, j, nums)
+            }
+            
+            i += 1
+            j += 1
+        }
+    }
+    
+    fun swap(i: Int, j: Int, nums: IntArray): Unit {
+        val firstVal: Int = nums[i]
+        val secondVal: Int = nums[j]
+        
+        nums[j] = firstVal
+        nums[i] = secondVal
+    }
+}
+
+// 44. Find All Numbers Disappeared in an Array
+import kotlin.math.*
+
+class Solution {    
+    // O(n) Time & Space
+    fun findDisappearedNumbers(nums: IntArray): List<Int> {
+        val allNums = mutableMapOf<Int,Boolean>()
+        var result = mutableListOf<Int>()
+        
+        for(num in nums) {
+            allNums.put(num, true)
+        }
+        // `until` is exclusive, hence it goes 0,1 in [1,1], but we need 2 as well
+        for(i in 1 until nums.size + 1) {
+            if(!allNums.containsKey(i)) {
+                result.add(i)
+            }
+        }
+        
+        return result
+    }
+    
+    // O(n) Time O(1) Space
+    fun findDisappearedNumbers(nums: IntArray): List<Int> {
+        for(num in nums) {
+            if(nums[abs(num) - 1] > 0) {
+                nums[abs(num) - 1] *= -1
+            }
+        }
+        
+        val returnList = mutableListOf<Int>()
+        for(i in 0 until nums.size) {
+            // as from [1,n] we need to add 1
+            if(nums[i] > 0) {
+                returnList.add(i + 1)
+            }
+        }
+        
+        return returnList
+    }
+}
+
+// 45. Squares of a Sorted Array
+import kotlin.math.*
+
+class Solution {
+    // brute force. Time O(n*log n)
+    fun sortedSquares(nums: IntArray): IntArray {
+        for(i in 0 until nums.size) {
+            nums[i] = nums[i] * nums[i]
+        }
+        
+        nums.sort()
+        
+        return nums
+    }
+    
+    // Optimal: O(n) Time & Space
+    fun sortedSquares(nums: IntArray): IntArray {
+        var left: Int = 0
+        var right: Int = nums.size - 1
+        var finalNums = IntArray(nums.size)
+        
+        for(i in nums.lastIndex downTo 0) {
+            val leftVal: Int = nums[left]
+            val rightVal: Int = nums[right]
+            
+            if(abs(leftVal) > abs(rightVal)) {
+                finalNums[i] = leftVal * leftVal
+                left += 1
+            } else {
+                finalNums[i] = rightVal * rightVal
+                right -= 1
+            }
+        }
+        
+        return finalNums
+    }
+}
