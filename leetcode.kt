@@ -1995,3 +1995,473 @@ class Solution {
         return finalNums
     }
 }
+
+// 46. Invert Binary Tree
+/**
+ * Example:
+ * var ti = TreeNode(5)
+ * var v = ti.`val`
+ * Definition for a binary tree node.
+ * class TreeNode(var `val`: Int) {
+ *     var left: TreeNode? = null
+ *     var right: TreeNode? = null
+ * }
+ */
+class Solution {
+    // recursive
+    fun invertTree(root: TreeNode?): TreeNode? {
+        if (root == null) {
+            return null
+        }
+        swap(root)
+        
+        invertTree(root.left)
+        invertTree(root.right)
+        
+        return root
+    }
+    
+    fun swap(node: TreeNode?): Unit {
+        val nodeLeft: TreeNode? = node!!.left
+        val nodeRight: TreeNode? = node!!.right
+        
+        node.left = nodeRight
+        node.right = nodeLeft
+    }
+    
+    // iterative
+    fun invertTree(root: TreeNode?): TreeNode? {
+        var queue = mutableListOf<TreeNode?>(root)
+        
+        while(queue.size != 0) {
+            val currNode: TreeNode? = queue.removeAt(0)
+            
+            if (currNode == null) {
+                continue
+            }
+            
+            swap(currNode)
+            
+            queue.add(currNode.left)
+            queue.add(currNode.right)
+        }
+        
+        return root
+    }
+}
+
+// 47. Kth Largest Element in a Stream
+class KthLargest(k: Int, nums: IntArray) {
+    // in `siftUp()` use `var idx` instead of `val` otherwise change doesn't happen
+
+    // heap
+    var currNums = MinHeap(nums.toMutableList())
+    val checkMark: Int = k
+
+    fun add(`val`: Int): Int {
+        currNums.insert(`val`)
+
+        var toRemoveCount = currNums.checkLength() - checkMark
+
+        // if (toRemoveCount > 0) {
+        //     repeat(toRemoveCount) {
+        //         currNums.delete()
+        //     }
+        // }
+        
+        while(toRemoveCount != 0) {
+            currNums.delete()
+            toRemoveCount -= 1
+        }
+
+        return currNums.peek()
+    }
+}
+
+class MinHeap(arr: MutableList<Int>) {
+
+    val heap: MutableList<Int> = createHeap(arr)
+
+    fun createHeap(arr: MutableList<Int>): MutableList<Int> {
+        val parentIdx = (arr.size - 2) / 2
+        for(i in parentIdx downTo 0) {
+            siftDown(i, arr.size - 1, arr)
+        }
+
+        return arr
+    }
+
+    fun insert(value: Int): Unit {
+        heap.add(value)
+        siftUp()
+    }
+
+    fun checkLength() = heap.size
+
+    fun siftUp(): Unit {
+        var idx = checkLength() - 1
+        
+        while(idx > 0) {
+            val parentIdx = (idx - 1) / 2
+
+            if(heap[idx] < heap[parentIdx]) {
+                swap(heap, idx, parentIdx)
+                idx = parentIdx
+            } else {
+                return
+            }
+        }
+    }
+
+    fun siftDown(idx: Int, length: Int, heap: MutableList<Int>): Unit {
+        var newIdx: Int = idx
+        
+        var idxOne = newIdx * 2 + 1
+        
+        while(idxOne <= length) {
+            var idxTwo = when {
+                newIdx * 2 + 2 <= length -> {
+                    newIdx * 2 + 2
+                } else -> {
+                    -1
+                }
+            }
+
+            val swapIdx: Int = if(idxTwo != -1 && heap[idxOne] > heap[idxTwo]) {
+                idxTwo
+            } else {
+                idxOne
+            }
+
+            if(heap[swapIdx] < heap[newIdx]) {
+                swap(heap, swapIdx, newIdx)
+                newIdx = swapIdx
+                idxOne = newIdx * 2 + 1
+            } else {
+                return
+            }
+        }
+    }
+
+    // it'll give -1 if our `heap` is empty
+    fun peek(): Int = heap.first()
+
+    fun delete(): Int {
+        val nodeToDelete = heap[0]
+
+        val length: Int = checkLength()
+        val newHead: Int = heap.removeAt(length - 1)
+        
+        // val newHead = heap.removeLast()
+
+        val currLengthHeap = checkLength()
+
+        if(currLengthHeap > 0) {
+            heap[0] = newHead
+            siftDown(0, checkLength()-1, heap)
+        }
+        return nodeToDelete
+    }
+
+    fun swap(heap: MutableList<Int>, i: Int, j: Int): Unit {
+        val valueOfi = heap[i]
+        val valueOfj = heap[j]
+
+        heap[i] = valueOfj
+        heap[j] = valueOfi
+    }
+}
+
+//     brute-froce with sorting
+    var currNums = nums.toMutableList()
+    val currK = k
+    
+    fun add(`val`: Int): Int {
+        currNums.add(`val`)
+        
+        currNums.sort()
+        return currNums[currNums.size-currK]
+    }
+
+
+// paritioning
+class KthLargest(k: Int, nums: IntArray) {
+    
+    var valList: MutableList<Int> = nums.toMutableList()
+    val kCheck: Int = k
+    
+    fun add(`val`: Int): Int {
+        valList.add(`val`)
+        
+        var j: Int = 0
+        var lastIdx: Int = valList.size - 1
+        
+        while(j <= lastIdx) {
+            val pivotIdx: Int = (j..lastIdx).random()
+            
+            val curr_pivot_idx = doPartition(valList, j, lastIdx, pivotIdx)
+            
+            if(curr_pivot_idx == (valList.size - kCheck)) {
+                return valList[curr_pivot_idx]
+            } else if((valList.size - kCheck) > curr_pivot_idx) {
+                j = curr_pivot_idx + 1
+            } else if(((valList.size - kCheck)) < curr_pivot_idx) {
+                lastIdx = curr_pivot_idx - 1
+            }
+        }
+        
+        return -1
+    }
+    
+    fun doPartition(valList: MutableList<Int>, j: Int, lastIdx: Int, pivotIdx: Int): Int {
+        val pivotValue: Int = valList[pivotIdx]
+        
+        swap(valList, pivotIdx, lastIdx)
+        
+        var leftBorder: Int = j
+        var movingIdx: Int = j
+
+        while(movingIdx <= lastIdx) {
+            if(valList[movingIdx] > pivotValue) {
+                movingIdx += 1
+            } else if(valList[movingIdx] < pivotValue) {
+                swap(valList, movingIdx, leftBorder)
+                movingIdx += 1
+                leftBorder += 1
+            } else {
+               movingIdx += 1 
+            }
+        }
+        
+        swap(valList, lastIdx, leftBorder)
+        return leftBorder
+    }
+    
+    fun swap(valList: MutableList<Int>, i: Int, j: Int): Unit {
+        val firstVal: Int = valList[i]
+        val secondVal: Int = valList[j]
+        
+        valList[i] = secondVal
+        valList[j] = firstVal
+    }
+}
+
+// 48. Valid Mountain Array
+class Solution {
+    fun validMountainArray(arr: IntArray): Boolean {
+        val length: Int = arr.size
+        
+        if (arr.size < 3) {
+            return false
+        }
+        
+        var idx: Int = 0
+        
+        while (idx + 1 < length && arr[idx] < arr[idx+1]) {
+            idx += 1
+        }
+        
+        if (idx == 0 || idx == length - 1) { // -1 is crucial as we want to check whether we reach last idx or not. Why? => last means either monotonic or strict increase
+            return false
+        }
+        
+        while (idx + 1 < length && arr[idx] > arr[idx+1]) {
+            idx += 1
+        }
+        
+        return idx == length - 1
+        // what's this? => we cam stop traverse when last - 1 < last, but that's wrong and hence we need to verify: we reach LAST idx
+    }
+}
+
+// 49. Missing Number
+class Solution {
+    // O(n) Time O(n) Space
+    fun missingNumber(nums: IntArray): Int {
+        val hashTable = mutableMapOf<Int, Boolean>()
+        for(num in nums) {
+            hashTable.put(num, true)
+        }
+        
+        var returnKey: Int = 0
+        
+        for(i in 0 until nums.size + 1) {
+            if(!hashTable.containsKey(i)) {
+                returnKey = i
+                break
+            }
+        }
+        
+        return returnKey
+    }
+    
+    // O(n * log n) Time O(1) Space
+    fun missingNumber(nums: IntArray): Int {
+        nums.sort()
+        
+        if(nums[0] != 0) {
+            return 0
+        }
+        
+        for(i in 1 until nums.size) {
+            val currNum: Int = nums[i]
+            val prevNum: Int = nums[i-1]
+
+            if (currNum - prevNum > 1) {
+                return prevNum + 1
+            }
+        }
+
+        return nums.last() + 1
+    }
+    
+    // O(n) Time O(1) Space
+    fun missingNumber(nums: IntArray): Int {
+        // don't use `numsLength` in loop as it'll change
+        var numsLength: Int = nums.size
+        
+        for(i in 0 until nums.size) {
+            val num: Int = nums[i]
+            val bit = num xor i
+            numsLength = bit xor numsLength
+        }
+        
+        return numsLength
+    }
+}
+
+// 50. Best Time to Buy and Sell Stock
+class Solution {
+    fun maxProfit(prices: IntArray): Int {
+        if (prices.size <= 1) {
+            return 0
+        }
+        
+        var minValue: Int = Int.MAX_VALUE
+        var currMax: Int = 0
+        
+        for (i in 0 until prices.size) {
+            val curr: Int = prices[i]
+            
+            if (curr < minValue) {
+                minValue = curr
+                continue
+            } else {
+                if (currMax > curr - minValue) {
+                    continue
+                } else {
+                    currMax = curr - minValue
+                }
+            }
+        }
+
+        return currMax
+    }
+} 
+
+// If we use both max & min: issue is that max may stay the same, but min will change
+// and we result in `min` idx being further than `max` idx
+// [7,6,4,3,1]
+
+// 51. Validate Binary Search Tree
+class Solution {
+    fun isValidBST(root: TreeNode?): Boolean {
+        if(root == null) {
+            return true
+        }
+        return this.checkValid(root.left, null, root.`val`) && this.checkValid(root.right, root.`val`, null)
+    }
+    
+    fun checkValid(node: TreeNode?, lower: Int?, upper: Int?): Boolean {
+        if(node == null) {
+            return true
+        }
+        val currVal: Int = node.`val`
+        if((lower == null || currVal > lower!!) && (upper == null || currVal < upper!!)) {
+            return this.checkValid(node.left, lower, currVal) && this.checkValid(node.right, currVal, upper)
+        }
+        return false
+    }
+}
+
+//52. Majority Element
+class Solution {
+    // hashtable
+    fun majorityElement(nums: IntArray): Int {
+        val hashtable = mutableMapOf<Int,Int>()
+        
+        for(num in nums) {
+            if (!hashtable.containsKey(num)) {
+                hashtable[num] = 1
+            } else {
+                hashtable[num] = hashtable[num]!! + 1
+            }
+        }
+        
+        val maxKey: Int = hashtable
+                .maxBy { it.value }!!
+                .key
+
+        return maxKey
+    }
+    
+    // O(1) Space
+    fun majorityElement(nums: IntArray): Int {
+        var count: Int = 0
+        var candidate: Int = 0
+        
+        for(num in nums) {
+            if (count == 0) {
+                candidate = num
+            }
+            count = when {
+                candidate == num -> {
+                    count + 1
+                } else -> {
+                    count - 1
+                }
+            }
+        }
+        
+        return candidate
+    }
+    
+    // Divide & Conquer
+    fun majorityElement(nums: IntArray): Int {
+        return findMajorElement(nums, 0, nums.size-1)
+    }
+    
+    fun findMajorElement(nums: IntArray, lo: Int, hi: Int): Int {
+        if (lo == hi) {
+            return nums[lo]
+        }
+        
+        val mid: Int = lo + (hi - lo) / 2
+        
+        val left = findMajorElement(nums, lo, mid)
+        val right = findMajorElement(nums, mid+1, hi)
+        
+        if (left == right) {
+            return left
+        }
+        
+        val leftCount: Int = countNums(nums, left)
+        val rightCount: Int = countNums(nums, right)
+        
+        val result: Int = if (leftCount > rightCount) left else right
+        return result
+        
+    }
+    
+    fun countNums(nums: IntArray, target: Int): Int {
+        var count: Int = 0
+        
+        for(num in nums) {
+            if (num == target) {
+                count += 1
+            }
+        }
+        
+        return count
+    }
+}
