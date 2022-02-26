@@ -2465,3 +2465,176 @@ class Solution {
         return count
     }
 }
+
+// 53. Convert Sorted Array to Binary Search Tree
+class Solution {
+    fun sortedArrayToBST(nums: IntArray): TreeNode? {
+        return createTree(nums, 0, nums.size - 1)
+    }
+    
+    fun createTree(nums: IntArray, lo: Int, hi: Int): TreeNode? {
+        if (lo > hi) {
+            return null
+        }
+        
+        val midIdx: Int = lo + (hi - lo)/2
+        val node: TreeNode = TreeNode(nums[midIdx])
+        // Why +1/-1? => We need to omit current index
+        node.left = createTree(nums, lo, midIdx - 1)
+        node.right = createTree(nums, midIdx + 1, hi)
+        
+        return node
+    }
+}
+
+// 54. Split Array Largest Sum
+import kotlin.math.*
+
+class Solution {
+    fun splitArray(nums: IntArray, m: Int): Int {
+        var left: Int = nums.max()!!
+        var right: Int = nums.sum()
+        
+        var result: Int = 0
+        
+        while (left <= right) {
+            var guessValue: Int = left + (right - left) / 2
+            val splitsRequired: Int = findMinSplits(nums, guessValue)
+            
+            if (splitsRequired <= m) {
+                right = guessValue - 1
+                result = guessValue
+            } else {
+                left = guessValue + 1
+            }
+        }
+        
+        return result
+    }
+    
+    fun findMinSplits(nums: IntArray, guessValue: Int): Int {
+        var splits: Int = 0
+        var currSum: Int = 0
+        
+        for(num in nums) {
+            if (currSum + num <= guessValue) {
+                currSum += num
+            } else {
+                currSum = num
+                splits += 1
+            }
+        }
+        return splits + 1
+    }
+}
+
+// 55. Reverse Linked List
+class Solution {
+    fun reverseList(head: ListNode?): ListNode? {
+        var currNode: ListNode? = head
+        var nextNode: ListNode? = null
+        var prevNode: ListNode? = null
+
+        while (currNode != null) {
+            nextNode = currNode.next // save next node
+            currNode.next = prevNode // reverse link
+            prevNode = currNode
+            currNode = nextNode
+        }
+
+        return prevNode
+    }
+}
+
+// 56. Two Sum II - Input Array Is Sorted
+class Solution {
+    fun twoSum(numbers: IntArray, target: Int): IntArray {
+        var result = mutableListOf<Int>()
+
+        for(i in 0 until numbers.size - 1) {
+            var left = i + 1
+            var right = numbers.size - 1
+
+            var curr_diff = target - numbers[i]
+            var flag: Boolean = false
+
+            while(left <= right) {
+                var midd = left + (right - left) / 2
+                if(numbers[midd] == curr_diff) {
+                    result.add(i+1)
+                    result.add(midd+1)
+                    break
+                } else if(numbers[midd] < curr_diff) {
+                    left = midd + 1
+                } else {
+                    right = midd - 1
+                }
+            }
+
+            if(result.size != 0) {
+                break
+            }
+        }
+
+        return result.toIntArray()
+    }
+
+    fun twoSum(numbers: IntArray, target: Int): IntArray {
+        var left: Int = 0
+        var right: Int = numbers.size - 1
+
+        var res1: Int = 0
+        var res2: Int = 0
+
+        while (left <= right) {
+            val sumOfTwo: Int = numbers[left] + numbers[right]
+
+            if (sumOfTwo == target) {
+                res1 = left + 1
+                res2 = right + 1
+                break
+            } else if (sumOfTwo > target) {
+                right -= 1
+            } else {
+                left += 1
+            }
+        }
+
+        return intArrayOf(res1, res2)
+    }
+}
+
+// 57. Contains Duplicate III
+// Time: n*log min(n,k); Space: min(n,k)
+class Solution {
+    fun containsNearbyAlmostDuplicate(nums: IntArray, k: Int, t: Int): Boolean {
+       var treeSet = TreeSet<Long>()
+       
+       for(i in 0 until nums.size) {
+           // floor is MAX that is SMALLER than current
+           val floor: Long? = treeSet.floor(nums[i].toLong())
+           
+           if(floor != null && nums[i] - floor <= t) {
+               return true
+           }
+           // ceil is MIN that is BIGGER than current
+           val ceil: Long? = treeSet.ceiling(nums[i].toLong())
+           
+           if(ceil != null && ceil - nums[i] <= t) {
+               return true
+           }
+           
+           treeSet.add(nums[i].toLong())
+           
+           // here we remove oldest. Why `i - k`? Because diff
+           // in indicies can't be bigger than `k`. Hence, if
+           // answer wasn't found with value to be removed, we
+           // simply remove it.
+           if(treeSet.size > k) {
+               treeSet.remove(nums[i - k].toLong())
+           }
+       }
+       
+       return false
+    }
+}
