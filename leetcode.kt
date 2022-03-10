@@ -2638,3 +2638,175 @@ class Solution {
        return false
     }
 }
+
+// 58. Unique Binary Search Trees II
+class Solution {
+    fun generateTrees(n: Int): List<TreeNode?> {
+        return this.traverseNodes(1, n)
+    }
+    
+    fun traverseNodes(start: Int, n: Int): List<TreeNode?> {
+        // base case
+        if (start > n) {
+            return mutableListOf(null)
+        }
+        
+        val allNodes: MutableList<TreeNode?> = mutableListOf<TreeNode?>()
+        
+        for(i in start until n + 1) {
+            // I can say we have 2 so-called base cases:
+            // a) when we return `null` b) when we return `[node]` with .null on both sides  
+            val leftPart: List<TreeNode?> = this.traverseNodes(start, i - 1)
+            val rightPart: List<TreeNode?> = this.traverseNodes(i + 1, n)
+
+            for(left in leftPart) {
+                for(right in rightPart) {
+                    val node: TreeNode = TreeNode(i)
+                    
+                    node.left = left
+                    node.right = right
+                    
+                    allNodes.add(node)
+                }
+            }
+        }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+        return allNodes
+    }
+}
+
+// 59. Find Pivot Index
+class Solution {
+    fun pivotIndex(nums: IntArray): Int {
+        // so, `allSum - leftSum` is diff, but adding `currValue`
+        // means that if `if condition` works => THIS index is pivot
+        val allSum: Int = nums.sum()
+        var leftSum: Int = 0
+        
+        for(i in 0 until nums.size) {
+            val currValue: Int = nums[i]
+            if(allSum - currValue - leftSum == leftSum) {
+                return i
+            }
+            leftSum += currValue
+        }
+        
+        return -1
+    }
+}
+
+// 60. Largest Number At Least Twice of Others
+class Solution {
+    fun dominantIndex(nums: IntArray): Int {
+        var firstIndex: Int = Int.MIN_VALUE
+        var biggestVal: Int = nums.max()!!
+        
+        for(i in 0 until nums.size) {
+            val valueNum: Int = nums[i]
+            if (valueNum != biggestVal && valueNum * 2 > biggestVal) {
+                return -1
+            } else if (valueNum == biggestVal) {
+                firstIndex = i
+            }
+        }
+        return firstIndex
+    }
+}
+
+// 61. Diagonal Traverse
+class Solution {
+    // In Kotlin if we want to `extend` -> use `+=`
+    fun findDiagonalOrder(mat: Array<IntArray>): IntArray {
+        val allElements: MutableMap<Int, MutableList<Int>> = mutableMapOf<Int, MutableList<Int>>()
+        
+        for(i in 0 until mat.size) {
+            for(j in 0 until mat[i].size) {
+                val currKey: Int = i + j
+                if (!allElements.containsKey(currKey)) {
+                    allElements.put(currKey, mutableListOf(mat[i][j]))
+                } else {
+                    allElements[currKey]!! += (mutableListOf(mat[i][j]))
+                }
+            }
+        }
+        
+        val result: MutableList<Int> = mutableListOf<Int>()
+
+        for((k, v) in allElements) {
+            if (k % 2 == 0) {
+                result += this.reverseList(v) // here we need to reverse
+            } else {
+                result += v // TODO: here we need to merge and nothing more
+            }
+        }
+        return result.toIntArray()
+    }
+    
+    fun reverseList(currList: MutableList<Int>): MutableList<Int> {
+        return currList.asReversed()
+    }
+}
+
+// 62. Spiral Matrix
+class Solution {
+    fun spiralOrder(matrix: Array<IntArray>): List<Int> {
+        var startRow: Int = 0
+        var startCol: Int = 0
+        var endRow: Int = matrix.size - 1
+        var endCol: Int = matrix[0].size - 1
+        
+        val result = mutableListOf<Int>()
+        
+        while (startRow <= endRow && startCol <= endCol) {
+            // from very start to very end
+            for(i in startCol until endCol + 1) {
+                result.add(matrix[startRow][i])
+            }
+            
+            // from one further to very end
+            for(i in startRow + 1 until endRow + 1) {
+                result.add(matrix[i][endCol])
+            }
+            
+            // from one behind to very end
+            for(i in endCol - 1 downTo startCol) {
+                // check
+                if (startRow == endRow) {
+                    break
+                }
+                
+                result.add(matrix[endRow][i])
+            }
+            
+            // from one behind to one further
+            for(i in endRow - 1 downTo startRow + 1) {
+                // check
+                if (startCol == endCol) {
+                    break
+                }
+                
+                result.add(matrix[i][startCol])
+            }
+            
+            startRow += 1
+            startCol += 1
+            endRow -= 1
+            endCol -= 1
+        }
+        
+        return result.toList()
+    }
+}
+
+// 63. Array Partition I
+class Solution {
+    fun arrayPairSum(nums: IntArray): Int {
+        var result: Int = 0
+        nums.sort()
+        
+        for(i in 0 until nums.size step 2) {
+            result += nums[i]
+        }
+        
+        return result
+    }
+}
