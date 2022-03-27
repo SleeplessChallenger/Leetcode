@@ -2713,6 +2713,8 @@ class Solution {
 }
 
 // 61. Diagonal Traverse
+
+// ver. 1
 class Solution {
     // In Kotlin if we want to `extend` -> use `+=`
     fun findDiagonalOrder(mat: Array<IntArray>): IntArray {
@@ -2743,6 +2745,52 @@ class Solution {
     
     fun reverseList(currList: MutableList<Int>): MutableList<Int> {
         return currList.asReversed()
+    }
+}
+
+// ver. 2
+class Solution {
+    fun findDiagonalOrder(mat: Array<IntArray>): IntArray {
+        val height: Int = mat.size
+        val width: Int = mat[0].size
+        
+        val result: MutableList<Int> = mutableListOf<Int>()
+        val tempResult: MutableList<Int> = mutableListOf<Int>()
+        
+        for(idx in 0 until (height + width - 1)) {
+            tempResult.clear()
+            
+            var row = when {
+                idx < width -> {
+                    0
+                } else -> {
+                    idx - width + 1
+                }
+            }
+            
+            var col = when {
+                idx < width -> {
+                    idx
+                } else -> {
+                    width - 1
+                }
+            }
+            
+            while (row < height && col > -1) {
+                tempResult.add(mat[row][col])
+                row += 1
+                col -= 1
+            }
+            
+            if (idx % 2 == 0) {
+                // as we start from 0, 0 is odd and 1 is even
+                result += tempResult.asReversed()
+            } else {
+                result += tempResult
+            }
+        }
+        
+        return result.toIntArray()
     }
 }
 
@@ -2808,5 +2856,334 @@ class Solution {
         }
         
         return result
+    }
+}
+
+// 64. Remove Element
+class Solution {
+    fun removeElement(nums: IntArray, `val`: Int): Int {
+        // 1. use 2 pointers: fast & slow runners
+        // 2. if fast != v: move it, else swap and move booth        
+        var slow: Int = 0
+        var fast: Int = 1
+        
+        if (nums.size == 1) {
+            // because if [2] 3, we need index of 1 as we need next after ours
+            return if (nums[0] == `val`) slow else slow + 1
+        }
+        if (nums.size == 0) {
+            return 0
+        }
+        
+        while (fast < nums.size) {
+            if (nums[slow] != `val`) {
+                fast += 1
+                slow += 1
+            } else {
+                if (nums[fast] != `val`) {
+                    this.swap(fast, slow, nums)
+                    slow += 1
+                }
+                fast += 1
+            }
+        }
+        // if `slow` element == `val`, we need to return it, otherwise next element
+        return if (nums[slow] == `val`) slow else slow + 1
+    }
+    
+    fun swap(i: Int, j: Int, nums: IntArray): Unit {
+        val firstVal: Int = nums[i]
+        val secondVal: Int = nums[j]
+        
+        nums[i] = secondVal
+        nums[j] = firstVal
+    }
+}
+
+// 65. Max Consecutive Ones
+import kotlin.math.*
+
+class Solution {
+    fun findMaxConsecutiveOnes(nums: IntArray): Int {
+        if (nums.size == 1) {
+            return if (nums[0] == 1) 1 else 0
+        }
+        
+        var currOnes: Int = 0
+        var maxOnes: Int = 0
+        
+        for(num in nums) {
+            if (num == 1) {
+                currOnes += 1
+                maxOnes = max(currOnes, maxOnes)
+            } else {
+                currOnes = 0   
+            }
+        }
+        
+        return maxOnes
+    }
+}
+
+// 66. Pascal's Triangle II
+class Solution {
+    fun getRow(rowIndex: Int): List<Int> {
+        val result: MutableList<MutableList<Int>> = 
+            mutableListOf<MutableList<Int>>(mutableListOf<Int>(1))
+        
+        for(i in 1 until rowIndex + 1) {
+            val currList: MutableList<Int> = mutableListOf<Int>(1)
+            
+            for(j in 1 until i) {
+                val firstVal: Int = result[i-1][j-1]
+                val secondVal: Int = result[i-1][j]
+                
+                currList.add(firstVal + secondVal)
+            }
+            
+            currList.add(1)
+            result += currList
+        }
+        
+        return result[rowIndex]
+    }
+}
+
+// 67. Minimum Size Subarray Sum
+import kotlin.math.*
+
+class Solution {
+    fun minSubArrayLen(target: Int, nums: IntArray): Int {
+        var answer: Int = Int.MAX_VALUE
+        var left: Int = 0
+        var sum: Int = 0
+        
+        for(idx in 0 until nums.size) {
+            sum += nums[idx]
+            
+            while (sum >= target) {
+            // + 1 as indicies start from 0, hence to find the length we need to add 1
+                answer = min(answer, idx + 1 - left)
+                sum -= nums[left]
+                left += 1
+            }
+        }
+        
+        return if (answer == Int.MAX_VALUE) 0 else answer
+    }
+}
+
+// 68. Rotate Array
+class Solution {
+    // O(n) time & space
+    fun rotate(nums: IntArray, k: Int): Unit {
+        val tempArray = MutableList<Int>(nums.size) { 0 }
+        for(i in 0 until nums.size) {
+            val newIdx: Int = (i + k) % nums.size
+            tempArray[newIdx] = nums[i]
+        }
+        
+        for(i in 0 until nums.size) {
+            nums[i] = tempArray[i]
+        }
+    }
+    
+    // O(n) Time & O(1) Space
+    fun rotate(nums: IntArray, k: Int): Unit {
+        fun reverse(start: Int, end: Int): Unit {
+            var i: Int = start
+            var j: Int = end
+            
+            while (i < j) {
+                val leftVal: Int = nums[i]
+                val rightVal: Int = nums[j]
+                
+                nums[i] = rightVal
+                nums[j] = leftVal
+                
+                i += 1
+                j -= 1
+            }
+        }
+        val length: Int = nums.size
+        val idx: Int = k % length
+        
+        reverse(0, length - 1)
+        reverse(0, idx - 1)
+        reverse(idx, length - 1)
+    }
+}
+
+// 69. Implement strStr()
+class Solution {
+    fun strStr(haystack: String, needle: String): Int {
+        if (haystack.length == 0 && needle.length == 0) {
+            return 0
+        } else if (haystack.length != 0 && needle.length == 0) {
+            return 0
+        } else {
+            val pattern = this.makePattern(needle)
+            return this.findSize(pattern, haystack, needle)
+        }
+    }
+
+    fun makePattern(needle: String): MutableList<Int> {
+        var i: Int = 0
+        var j: Int = 1
+
+        val pattern = MutableList<Int>(needle.length) { -1 }
+
+        while (j < needle.length) {
+            if (needle[j] == needle[i]) {
+                pattern[j] = i
+                i += 1
+                j += 1
+            } else if (i > 0) {
+                i = pattern[i-1] + 1
+            } else {
+                j += 1
+            }
+        }
+
+        return pattern
+    }
+
+    fun findSize(pattern: MutableList<Int>, bigString: String, smallString: String): Int {
+        var i: Int = 0
+        var j: Int = 0
+        // current index from big string + len of small string - current index of small string
+        while (j + smallString.length - i <= bigString.length) {
+            if (smallString[i] == bigString[j]) {
+                if (i == smallString.length - 1) {
+                    return j - i
+                }
+                i += 1
+                j += 1
+            } else if (i > 0) {
+                i = pattern[i-1] + 1
+            } else {
+                j += 1
+            }
+        }
+        return -1
+    }
+}
+
+// 70. Reverse Words in a String
+class Solution {
+    fun reverseWords(s: String): String {
+        // 1. strip() left & right ends
+        // 2. make upper loop to traverse whole string
+        // 3. if current letter is " " & word() array != [] -> push left
+        // 4. if current letter != " " -> append to word() array
+        var left: Int = 0
+        var right: Int = s.length - 1
+
+        while (left <= right && s[left].isWhitespace()) {
+            left += 1
+        }
+
+        while (left <= right && s[right].isWhitespace()) {
+            right -= 1
+        }
+
+        var finalResult = mutableListOf<String>()
+        val words = mutableListOf<Char>()
+
+        while (left <= right) {
+            val currentLetter = s[left]
+
+            if (currentLetter.isWhitespace() && (words.size != 0)) {
+                finalResult.add(0, words.joinToString(""))
+                words.clear()
+            } else if (!currentLetter.isWhitespace()) {
+                words.add(currentLetter)
+            } // if space && words == 0 -> skip to bypass multiple " "
+
+            left += 1
+        }
+
+        finalResult.add(0, words.joinToString(""))
+        return finalResult.joinToString(" ")
+    }
+}
+
+// 71. Reverse Words in a String III
+class Solution {
+    fun reverseWords(s: String): String {
+        var allWords = mutableListOf<Char>()
+
+        for(token in s) {
+            allWords.add(token)
+        }
+
+        var runningIdx: Int = 0
+        var start: Int = 0
+        val length: Int = s.length
+
+        while (runningIdx < length) {
+            while (runningIdx < length && !allWords[runningIdx].isWhitespace()) {
+                runningIdx += 1
+            }
+
+            this.reverseTokens(allWords, start, runningIdx-1)
+
+            runningIdx += 1
+            start = runningIdx
+        }
+
+        this.reverseTokens(allWords, start, runningIdx-1)
+
+        return allWords.joinToString("")
+    }
+
+    fun reverseTokens(allWords: MutableList<Char>, start: Int, end: Int): Unit {
+        var i: Int = start
+        var j: Int = end
+
+        while (i < j) {
+            val firstToken: Char = allWords[i]
+            val secondToken: Char = allWords[j]
+
+            allWords[i] = secondToken
+            allWords[j] = firstToken
+
+            i += 1
+            j -= 1
+        }
+    }
+}
+
+// 72. Remove Duplicates from Sorted Array
+class Solution {
+    // by using `+1`, we'll move duplicate things till the end
+    fun removeDuplicates(nums: IntArray): Int {
+        if (nums.size < 2) {
+            return 1
+        }
+
+        var i: Int = 0
+        var j: Int = 1
+        val length: Int = nums.size
+
+        while (j < length) {
+            if (nums[j] == nums[i]) {
+                j += 1
+            } else {
+                this.swap(nums, i + 1, j)
+                i += 1
+                j += 1
+            }
+        }
+
+        return i + 1
+    }
+
+    fun swap(nums: IntArray, i: Int, j: Int): Unit {
+        val firstVal = nums[i]
+        val secondVal = nums[j]
+
+        nums[i] = secondVal
+        nums[j] = firstVal
     }
 }
