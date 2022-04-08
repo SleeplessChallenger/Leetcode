@@ -3187,3 +3187,366 @@ class Solution {
         nums[j] = firstVal
     }
 }
+
+// 73. Longest Common Prefix
+import kotlin.math.*
+
+class Solution {
+    fun longestCommonPrefix(strs: Array<String>): String {
+        if (strs.size == 0) {
+            return ""
+        }
+        
+        var prefix: String = strs[0]
+
+        for(i in 1 until strs.size) {
+            val currWord: String = strs[i]
+
+            while (!currWord.startsWith(prefix)) {
+                val prefixLength: Int = prefix.length
+                // `untils` is exclusive, but `prefixLength` is length. Recall indicies stuff
+                prefix = prefix.slice(0 until prefixLength - 1)
+            }
+        }
+        
+        return prefix
+    }
+    
+    // !! Below has some error
+    // Divide & Conquer
+    fun longestCommonPrefix(strs: Array<String>): String {
+        if (strs.size == 1) {
+            return strs[0]
+        }
+        val result = this.dividePart(strs, 0, strs.size-1)
+        return result
+    }
+    
+    fun dividePart(strs: Array<String>, lo: Int, hi: Int): String {
+        // 1. We take all left and rec till one left
+        // 2. On the right we always have 1 left
+        // 3. Then we take 1 left & 1 right: process them
+        //     => return one result which is common prefix to `left_result` as `right_result` always keeps one
+        if (lo == hi) {
+            return strs[lo]
+        }
+                
+        val mid: Int = (lo + hi) / 2
+        
+        val leftResult: String = this.dividePart(strs, lo, mid)
+        val rightResult: String = this.dividePart(strs, mid+1, hi)
+        
+        return this.conquerPart(leftResult, rightResult)
+    }
+    
+    fun conquerPart(leftResult: String, rightResult: String): String {
+        val smallestInt: Int = min(leftResult.length, rightResult.length)
+        
+        for(i in 0 until smallestInt) {
+            if (leftResult[i] != rightResult[i]) {
+                return leftResult.substring(0..i)
+            }
+        }
+        
+        return leftResult.substring(0..smallestInt)
+    }
+}
+
+// 74. Add Binary
+import kotlin.math.*
+
+class Solution {
+    fun addBinary(a: String, b: String): String {
+        val length: Int = max(a.length, b.length)
+        
+        var currA = a.padStart(length, '0')
+        var currB = b.padStart(length, '0')
+
+        var carry: Int = 0
+        val result = mutableListOf<Char>()
+        
+        for(i in (length - 1) downTo 0) {
+            if (currA[i] == '1') {
+                carry += 1
+            }
+            if (currB[i] == '1') {
+                carry += 1
+            }
+            
+            if (carry % 2 == 1) {
+                result.add('1')
+            } else {
+                result.add('0')
+            }
+            
+            carry /= 2
+
+        }
+
+        if (carry == 1) {
+            result.add('1')
+        }
+        
+        val finalAnswer = result.reversed()
+        
+        return finalAnswer.joinToString("")
+    }
+}
+
+// 75. Design HashSet
+class MyHashSet {
+    private val primaryKey: Int = 769
+    private val bucket = this.createBuckets()
+
+    private fun createBuckets(): ArrayList<LLBucket> {
+        val bucket = arrayListOf<LLBucket>()
+
+        for(i in 0 until this.primaryKey) {
+            bucket.add(LLBucket())
+        }
+
+        return bucket
+    }
+
+    private fun hashFunction(value: Int): Int {
+        return value % this.primaryKey
+    }
+
+    fun add(key: Int): Unit {
+        val bucketIndex: Int = this.hashFunction(key)
+        bucket[bucketIndex].insert(key)
+        return
+    }
+
+    fun remove(key: Int): Unit {
+        val bucketIndex: Int = this.hashFunction(key)
+        bucket[bucketIndex].remove(key)
+    }
+
+    fun contains(key: Int): Boolean {
+        val bucketIndex: Int = this.hashFunction(key)
+        return bucket[bucketIndex].exist(key)
+    }
+
+}
+
+data class Node constructor(val value: Int, var next: Node? = null)
+
+class LLBucket {
+    private val head: Node = Node(0)
+
+    fun insert(value: Int) {
+       if (!this.exist(value)) {
+           val newNode: Node = Node(value, this.head.next)
+           head.next = newNode
+       }
+    }
+
+    fun remove(value: Int) {
+        var prevNode = this.head
+        var currNode = this.head.next
+
+        while (currNode != null) {
+            if (currNode.value == value) {
+                prevNode.next = currNode.next
+                return
+            }
+
+            prevNode = currNode
+            currNode = currNode.next
+        }
+    }
+
+    fun exist(value: Int): Boolean {
+        var currNode = this.head.next
+
+        while (currNode != null) {
+            if (currNode!!.value == value) {
+                return true
+            }
+            currNode = currNode!!.next
+        }
+        return false
+    }
+}
+
+// 76. Design HashMap
+class MyHashMap {
+    private fun createBucket(): ArrayList<Bucket> {
+        val bucket = arrayListOf<Bucket>()
+
+        for(i in 0 until this.primeNum) {
+            bucket.add(Bucket())
+        }
+
+        return bucket
+    }
+
+    private val primeNum: Int = 2069
+    private val bucket = this.createBucket()
+
+    private fun hashFunction(key: Int): Int {
+        return key % this.primeNum
+    }
+
+    fun put(key: Int, value: Int): Unit {
+        val bucketIndex: Int = this.hashFunction(key)
+        this.bucket[bucketIndex].add(key, value)
+    }
+
+    fun get(key: Int): Int {
+        val bucketIndex: Int = this.hashFunction(key)
+        return this.bucket[bucketIndex].contains(key)
+    }
+
+    fun remove(key: Int): Unit {
+        val bucketIndex: Int = this.hashFunction(key)
+        this.bucket[bucketIndex].delete(key)
+    }
+}
+
+class Bucket {
+    private val bucket = arrayListOf<Pair<Int, Int>>()
+
+    fun add(key: Int, value: Int): Unit {
+        var flag: Boolean = false
+
+        for(i in 0 until bucket.size) {
+            val currPair: Pair<Int, Int> = bucket[i]
+            val (existingKey: Int, _: Int) = currPair
+
+            if (existingKey == key) {
+                bucket[i] = Pair(existingKey, value)
+                flag = true
+                break
+            }
+        }
+
+        if (!flag) {
+            this.bucket.add(Pair(key, value))
+        }
+
+        return
+    }
+
+    fun contains(key: Int): Int {
+        for (currPair in this.bucket) {
+            val (existingKey: Int, existingValue: Int) = currPair
+            if (existingKey == key) {
+                return existingValue
+            }
+        }
+
+        return -1
+    }
+
+    fun delete(key: Int): Unit {
+        for(currPair in this.bucket) {
+            val (existingKey: Int, _: Int) = currPair
+            if (existingKey == key) {
+                this.bucket.remove(currPair)
+                break
+            }
+        }
+
+        return
+    }
+}
+
+// 77. Single Number
+class Solution {
+    // ver. 1
+    fun singleNumber(nums: IntArray): Int {
+        val ht = mutableMapOf<Int, Int>()
+        for (num in nums) {
+            if (!ht.containsKey(num)) {
+                ht.put(num, 0)
+            }
+            ht[num] = ht[num]!! + 1
+        }
+        
+        var result: Int = 0
+        for((k,v) in ht) {
+            if (v == 1) {
+                result = k
+                break
+            }
+        }
+        
+        return result
+    }
+    
+    // ver. 2
+    fun singleNumber(nums: IntArray): Int {
+        var result: Int = 0
+        for(num in nums) {
+            result = result xor num
+        }
+        
+        return result
+    }
+}
+
+// 78. Intersection of Two Arrays
+class Solution {
+    using hash table
+    fun intersection(nums1: IntArray, nums2: IntArray): IntArray {
+        val firstHashTable = mutableMapOf<Int, Boolean>()
+        val secondHashTable = mutableMapOf<Int, Boolean>()
+        
+        for(num in nums1) {
+            firstHashTable.put(num, true)
+        }
+        
+        for(num in nums2) {
+            secondHashTable.put(num, true)
+        }
+        
+        val result = mutableListOf<Int>()
+        
+        for((k,v) in firstHashTable) {
+            if (secondHashTable.contains(k)) {
+                result.add(k)
+            }
+        }
+        
+        return result.toIntArray()
+    }
+    
+    // using intersect
+    fun intersection(nums1: IntArray, nums2: IntArray): IntArray {
+        return nums1.intersect(nums2.toList()).toIntArray()
+    }
+}
+
+// 79. Intersection of Two Arrays
+class Solution {
+    using hash table
+    fun intersection(nums1: IntArray, nums2: IntArray): IntArray {
+        val firstHashTable = mutableMapOf<Int, Boolean>()
+        val secondHashTable = mutableMapOf<Int, Boolean>()
+        
+        for(num in nums1) {
+            firstHashTable.put(num, true)
+        }
+        
+        for(num in nums2) {
+            secondHashTable.put(num, true)
+        }
+        
+        val result = mutableListOf<Int>()
+        
+        for((k,v) in firstHashTable) {
+            if (secondHashTable.contains(k)) {
+                result.add(k)
+            }
+        }
+        
+        return result.toIntArray()
+    }
+    
+    // using intersect
+    fun intersection(nums1: IntArray, nums2: IntArray): IntArray {
+        return nums1.intersect(nums2.toList()).toIntArray()
+    }
+}
