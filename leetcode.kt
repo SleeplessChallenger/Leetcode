@@ -3550,3 +3550,276 @@ class Solution {
         return nums1.intersect(nums2.toList()).toIntArray()
     }
 }
+
+// 80. Happy Number
+class Solution {
+    fun isHappy(n: Int): Boolean {
+        val calculatedNums = hashSetOf<Int>()
+        var currNum: Int = n
+        
+        while (!calculatedNums.contains(currNum)) {
+            if (currNum == 1) {
+                return true
+            }
+            // add at first as we need to process current num before changing it
+            calculatedNums.add(currNum)
+            
+            currNum = this.calcNum(currNum)
+        }
+        
+        return false
+    }
+    
+    fun calcNum(num: Int): Int {
+        var result: Int = 0
+        var currNum: Int = num
+        
+        while (currNum != 0) {
+            val rightPart: Int = currNum % 10
+            result += rightPart * rightPart
+            
+            currNum = currNum / 10
+        }
+        
+        return result
+    }
+}
+
+// 81. Minimum Index Sum of Two Lists
+class Solution {
+    // optimal
+    fun findRestaurant(list1: Array<String>, list2: Array<String>): Array<String> {
+        val hashTableOne = mutableMapOf<String, Int>()
+        
+        var minSum: Int = Int.MAX_VALUE
+        var resultWords = mutableListOf<String>()
+        
+        for(i in 0 until list1.size) {
+            hashTableOne.put(list1[i], i)
+        }
+        
+        for(i in 0 until list2.size) {
+            val letterSecond: String = list2[i]
+            
+            if (hashTableOne.containsKey(letterSecond)) {
+                val currSum: Int = hashTableOne[letterSecond]!! + i
+                if (currSum < minSum) {
+                    resultWords.clear()
+                    resultWords.add(letterSecond)
+                    minSum = currSum
+                } else if (currSum == minSum) {
+                    resultWords.add(letterSecond)
+                }
+            }
+        }
+        
+        return resultWords.toTypedArray()
+    }
+    
+    // non-optimal double traversal
+    fun findRestaurant(list1: Array<String>, list2: Array<String>): Array<String> {
+        val hashMap = mutableMapOf<Int, MutableList<String>>()
+        
+        for(i in 0 until list1.size) {
+            for(j in 0 until list2.size) {
+                if (list1[i].equals(list2[j])) {
+                    val currKey: Int = i + j
+                    if (!hashMap.containsKey(currKey)) {
+                        hashMap.put(currKey, mutableListOf<String>())
+                    }
+                    hashMap[currKey]!!.add(list1[i])
+                }
+            }
+        }
+        
+        var smallestIdx: Int = Int.MAX_VALUE
+        
+        // more optimal is to find smallest index without `.clear()` & then get value based on the key
+        for(k in hashMap.keys) {
+            if (k < smallestIdx) {
+                smallestIdx = k
+            }
+        }
+        
+        val result = hashMap[smallestIdx]!!
+        return result.toTypedArray()
+    }
+    
+    // with constant space
+    fun findRestaurant(list1: Array<String>, list2: Array<String>): Array<String> {
+        val result = mutableListOf<String>()
+        
+        for(i in 0 until (list1.size + list2.size) - 1) {
+            for(j in 0 until i + 1) { // inclusive
+                if (j < list1.size && i - j < list2.size && list1[j].equals(list2[i-j])) {
+                    result.add(list1[j])
+                }
+            }
+            
+            if (result.size > 0) {
+                break
+            }
+        }
+        
+        return result.toTypedArray()
+    }
+}
+
+// 82. Isomorphic Strings
+class Solution {
+    fun isIsomorphic(s: String, t: String): Boolean {
+        val wordsMapOne = hashMapOf<Char, Char>()
+        val wordsMapTwo = hashMapOf<Char, Char>()
+        
+        for(i in 0 until s.length) {
+            val letterS = s[i]
+            val letterT = t[i]
+            
+            if (wordsMapOne.containsKey(letterS) && wordsMapOne[letterS] != letterT) {
+                return false
+            }
+            
+            if (wordsMapTwo.containsKey(letterT) && wordsMapTwo[letterT] != letterS) {
+                return false
+            }
+            
+            wordsMapOne.put(letterS, letterT)
+            wordsMapTwo.put(letterT, letterS)
+        }
+        
+        return true
+    }
+}
+
+// 83. Logger Rate Limiter
+class Logger() {
+    
+    private val hashSet = mutableSetOf<String>()
+    private val queue = arrayListOf<Pair<String, Int>>()
+
+    private val hashTable: MutableMap<String, Int> = mutableMapOf<String, Int>()
+    
+    // first
+    fun shouldPrintMessage(timestamp: Int, message: String): Boolean {
+        if (!hashTable.containsKey(message)) {
+            hashTable.put(message, timestamp)
+            return true
+        } else {
+            val existingStamp: Int = this.hashTable[message]!!
+            
+            if ((timestamp - existingStamp) >= 10) {
+                hashTable.put(message, timestamp)
+                return true
+            } else {
+                return false
+            }
+        }
+    }
+    
+    // second
+    fun shouldPrintMessage(timestamp: Int, message: String): Boolean {
+        this.processQueue(timestamp)
+        
+        if (!hashSet.contains(message)) {
+            hashSet.add(message)
+            queue.add(queue.size, Pair<String, Int>(message, timestamp))
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    fun processQueue(stamp: Int): Unit {
+        while (this.queue.size != 0) {
+            val (currMsg, currStamp) = this.queue.get(0);
+            
+            if ((stamp - currStamp) >= 10) {
+                this.queue.removeAt(0)
+                this.hashSet.remove(currMsg)
+            } else {
+                break
+            }
+        }
+    }
+
+}
+
+// 84. Minimum Index Sum of Two Lists
+class Solution {
+    // optimal
+    fun findRestaurant(list1: Array<String>, list2: Array<String>): Array<String> {
+        val hashTableOne = mutableMapOf<String, Int>()
+        
+        var minSum: Int = Int.MAX_VALUE
+        var resultWords = mutableListOf<String>()
+        
+        for(i in 0 until list1.size) {
+            hashTableOne.put(list1[i], i)
+        }
+        
+        for(i in 0 until list2.size) {
+            val letterSecond: String = list2[i]
+            
+            if (hashTableOne.containsKey(letterSecond)) {
+                val currSum: Int = hashTableOne[letterSecond]!! + i
+                if (currSum < minSum) {
+                    resultWords.clear()
+                    resultWords.add(letterSecond)
+                    minSum = currSum
+                } else if (currSum == minSum) {
+                    resultWords.add(letterSecond)
+                }
+            }
+        }
+        
+        return resultWords.toTypedArray()
+    }
+    
+    // non-optimal double traversal
+    fun findRestaurant(list1: Array<String>, list2: Array<String>): Array<String> {
+        val hashMap = mutableMapOf<Int, MutableList<String>>()
+        
+        for(i in 0 until list1.size) {
+            for(j in 0 until list2.size) {
+                if (list1[i].equals(list2[j])) {
+                    val currKey: Int = i + j
+                    if (!hashMap.containsKey(currKey)) {
+                        hashMap.put(currKey, mutableListOf<String>())
+                    }
+                    hashMap[currKey]!!.add(list1[i])
+                }
+            }
+        }
+        
+        var smallestIdx: Int = Int.MAX_VALUE
+        
+        // more optimal is to find smallest index without `.clear()` & then get value based on the key
+        for(k in hashMap.keys) {
+            if (k < smallestIdx) {
+                smallestIdx = k
+            }
+        }
+        
+        val result = hashMap[smallestIdx]!!
+        return result.toTypedArray()
+    }
+    
+    // with constant space
+    fun findRestaurant(list1: Array<String>, list2: Array<String>): Array<String> {
+        val result = mutableListOf<String>()
+        
+        for(i in 0 until (list1.size + list2.size) - 1) {
+            for(j in 0 until i + 1) { // inclusive
+                if (j < list1.size && i - j < list2.size && list1[j].equals(list2[i-j])) {
+                    result.add(list1[j])
+                }
+            }
+            
+            if (result.size > 0) {
+                break
+            }
+        }
+        
+        return result.toTypedArray()
+    }
+}
