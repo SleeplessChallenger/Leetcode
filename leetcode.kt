@@ -3823,3 +3823,412 @@ class Solution {
         return result.toTypedArray()
     }
 }
+
+// 85. Maximum Subarray
+import kotlin.math.*
+
+class Solution {
+    fun maxSubArray(nums: IntArray): Int {
+        var temp: Int = nums[0]
+        var total: Int = nums[0]
+        
+        for (i in 1 until nums.size) {
+            val num: Int = nums[i] 
+            // either add current + temp || only current
+            temp = max(num, temp + num) // for consecutive
+            total = max(total, temp)
+        }
+        
+        return total
+    }
+}
+
+// 86. Find Duplicate Subtrees
+class Solution {
+    fun findDuplicateSubtrees(root: TreeNode?): List<TreeNode?> {
+        val hashMap = mutableMapOf<String, Int>()
+        val finalArray = mutableListOf<TreeNode>()
+        
+        this.traverse(hashMap, finalArray, root)
+        return finalArray
+    }
+    
+    fun traverse(map: MutableMap<String, Int>, arr: MutableList<TreeNode>, node: TreeNode?): String {
+        if (node == null) {
+            return "#"
+        }
+        
+        val serial: String = "${node.`val`}" + ',' +
+            this.traverse(map, arr, node.left) + ',' +
+            this.traverse(map, arr, node.right)
+        
+        if (!map.containsKey(serial)) {
+            map.put(serial, 1)
+        } else {
+            map[serial] = map[serial]!! + 1
+        }
+        
+        if (map[serial] == 2) {
+            arr.add(node)
+        }
+        
+        return serial
+    }
+}
+
+// 87. Find Winner on a Tic Tac Toe Game
+import kotlin.math.*
+
+class Solution {
+    fun tictactoe(moves: Array<IntArray>): String {
+        val n: Int = 3
+        
+        var player: Int = 1
+        
+        val rows = MutableList<Int>(n) {0}
+        val cols = MutableList<Int>(n) {0}
+        var diag: Int = 0
+        var antiDiag: Int = 0
+        
+        for (move in moves) {
+            val row = move.get(0)
+            val col = move.get(1)
+            
+            if (row == col) {
+                diag += player
+            }
+            if (row + col == n - 1) {
+                antiDiag += player
+            }
+            
+            rows[row] += player
+            cols[col] += player
+            
+            if (this.checkValid(
+                n,
+                rows[row],
+                cols[col],
+                diag,
+                antiDiag
+            )) {
+                return if (player == 1) "A" else "B"
+            }
+            player *= -1
+        }
+        
+        return if (moves.size == 9) "Draw" else "Pending"
+    }
+    
+    fun checkValid(n: Int, row: Int, col: Int, diag: Int, antiDiag: Int): Boolean {
+        for (i in listOf(row, col, diag, antiDiag)) {
+            if (abs(i) == n) {
+                return true
+            }
+        }
+        return false
+    }
+}
+
+// 88. Valid Sudoku
+class Solution {
+    private val N: Int = 9
+    
+    // with set
+    fun isValidSudoku(board: Array<CharArray>): Boolean {
+        val rowSet = MutableList<HashSet<Char>>(N) {HashSet<Char>()}
+        val colSet = MutableList<HashSet<Char>>(N) {HashSet<Char>()}
+        val boxSet = MutableList<HashSet<Char>>(N) {HashSet<Char>()}
+        
+        for (row in 0 until N) {
+            for (col in 0 until N) {
+                val currToken = board[row][col]
+                
+                if (currToken == '.') {
+                    continue
+                }
+                
+                if (rowSet[row].contains(currToken)) {
+                    return false
+                }
+                rowSet[row].add(currToken)
+                
+                if (colSet[col].contains(currToken)) {
+                    return false
+                }
+                colSet[col].add(currToken)
+                
+                val finalBoxPos = (row / 3) * 3 + col / 3
+                if (boxSet[finalBoxPos].contains(currToken)) {
+                    return false
+                }
+                
+                boxSet[finalBoxPos].add(currToken)
+            }
+        }
+        
+        return true
+    }
+    
+    // with array
+    // keep in mind that we have `1-9` values
+    fun isValidSudoku(board: Array<CharArray>): Boolean {
+        // Int as we need to put flag: 1 or 0
+        // I.e. rows: we have 9 lists where 9 zeros reside
+        val rows = MutableList<MutableList<Int>>(9) {MutableList<Int>(9) {0}}
+        val cols = MutableList<MutableList<Int>>(9) {MutableList<Int>(9) {0}}
+        val boxes = MutableList<MutableList<Int>>(9) {MutableList<Int>(9) {0}}
+        
+        for (r in 0 until N) {
+            for (c in 0 until N) {
+                if (board[r][c] == '.') {
+                    continue
+                }
+                
+                // take value & subtract 1 as we have nums 1-9, but indicies are 0-8
+                val position: Int = board[r][c] - '1'
+                
+                if (rows[r][position] == 1) {
+                    return false
+                }
+                rows[r][position] = 1
+                
+                if (cols[c][position] == 1) {
+                    return false
+                }
+                cols[c][position] = 1
+                
+                val idx = (r / 3) * 3 + c / 3
+                if (boxes[idx][position] == 1) {
+                    return false
+                }
+                
+                boxes[idx][position] = 1
+            }
+        }
+        
+        return true
+    }
+    
+    // in binary approach we use array where each idx is a number 0
+    // which will be like: 000000000. We'll change from right to left as usual with bitshifting
+    fun isValidSudoku(board: Array<CharArray>): Boolean {
+        val rows = MutableList<Int>(9) {0}
+        val cols = MutableList<Int>(9) {0}
+        val boxes = MutableList<Int>(9) {0}
+        
+        for (r in 0 until 9) {
+            for (c in 0 until 9) {
+                if (board[r][c] == '.') {
+                    continue
+                }
+                
+                val value: Int = board[r][c] - '0'
+                val position: Int = 1 shl (value - 1) 
+                // -1 as we need to converet from 1-9 nums to 0-8 indicies
+               // `<<` allows us to find that position which we want to look at
+               
+               if ((rows[r] and position) > 0) {
+                   return false
+               }
+                rows[r] = rows[r] xor position
+                
+                if ((cols[c] and position) > 0) {
+                    return false
+                }
+                cols[c] = cols[c] xor position
+                
+                val idx: Int = (r / 3) * 3 + c / 3
+                if ((boxes[idx] and position) > 0) {
+                    return false
+                }
+                boxes[idx] = boxes[idx] xor position
+            }
+        }
+        
+        return true
+    }
+}
+
+// 89. Jewels and Stones
+class Solution {
+    private val hashSet = mutableSetOf<Char>()
+    
+    fun processJewels(jewels: String): Unit {
+        for (jewel in jewels) {
+            hashSet.add(jewel)
+        }
+    }
+    
+    fun numJewelsInStones(jewels: String, stones: String): Int {
+        this.processJewels(jewels)
+        
+        var count_jewels: Int = 0
+        
+        for (stone in stones) {
+            if (hashSet.contains(stone)) {
+                count_jewels += 1
+            }
+        }
+        
+        return count_jewels
+    }
+}
+
+// 90. 4Sum II
+class Solution {
+    private val hashMap = mutableMapOf<Int, Int>()
+    
+    // general hash-table approach
+    fun fourSumCount(nums1: IntArray, nums2: IntArray, nums3: IntArray, nums4: IntArray): Int {
+       
+       for (a in nums1) {
+           for (b in nums2) {
+               val currSum: Int = (a + b)
+               if (!this.hashMap.containsKey(currSum)) {
+                   this.hashMap.put(currSum, 0)
+               }
+               this.hashMap[currSum] = this.hashMap[currSum]!! + 1
+           }
+       }
+       
+       var count: Int = 0
+        
+        for (c in nums3) {
+            for (d in nums4) {
+                val currSum: Int = (c + d) * -1
+                if (this.hashMap.containsKey(currSum)) {
+                    count += this.hashMap[currSum]!!
+                }
+            }
+        }
+        
+        return count
+    }
+    
+    // kSum approach
+    fun fourSumCount(nums1: IntArray, nums2: IntArray, nums3: IntArray, nums4: IntArray): Int {
+        val allNums = listOf(nums1, nums2, nums3, nums4)
+        this.addToHash(0, 0, allNums)
+        
+        return this.findCompliment(allNums.size / 2, 0, allNums)
+    }
+    
+    fun addToHash(idx: Int, total: Int, allNums: List<IntArray>): Unit {
+        // stop case
+        if (idx == allNums.size / 2) {
+            if (!this.hashMap.containsKey(total)) {
+                this.hashMap.put(total, 0)
+            }
+            this.hashMap[total] = this.hashMap[total]!! + 1
+            return
+        } else {
+            for (num in allNums[idx]) {
+                this.addToHash(idx+1, total+num, allNums)
+            }
+        }
+    }
+    
+    fun findCompliment(idx: Int, compl: Int, allNums: List<IntArray>): Int {
+        if (idx == allNums.size) {
+            if (this.hashMap.containsKey(compl)) {
+                return this.hashMap[compl]!!
+            } else {
+                return 0
+            }
+        } else {
+            var count: Int = 0
+            for (num in allNums[idx]) {
+                count += this.findCompliment(idx+1, compl-num, allNums)
+            }
+            return count
+        }
+    }
+}
+
+// 91. Insert Delete GetRandom O(1)
+class RandomizedSet() {
+    private val allKeys = mutableListOf<Int>()
+    private val allData = mutableMapOf<Int, Int>()
+
+    fun insert(`val`: Int): Boolean {
+        if (this.allData.containsKey(`val`)) {
+            return false
+        } else {
+            this.allData.put(`val`, allKeys.size)
+            this.allKeys.add(`val`)
+            return true
+        }
+    }
+
+    fun remove(`val`: Int): Boolean {
+        if (!this.allData.containsKey(`val`)) {
+            return false
+        } else {
+            // 1. take idx of `val`
+            // 2. swap `val`& last val in allKeys
+            // 3. update idx for last val in dict
+            // 4. remove `val` from both data structures
+            val currIdx: Int = this.allData[`val`]!!
+            this.swap(currIdx)
+            
+            this.allData.remove(`val`)
+            
+            return true
+        }
+    }
+
+    fun getRandom(): Int {
+        return this.allKeys.random()
+    }
+    
+    private fun swap(idx: Int): Unit {
+        val lastIdx: Int = this.allKeys.size - 1
+        
+        val lastIdxVal: Int = this.allKeys[lastIdx]
+        val idxVal: Int = this.allKeys[idx]
+        
+        this.allKeys[idx] = lastIdxVal
+        this.allKeys[lastIdx] = idxVal
+        
+        this.allData.put(lastIdxVal, idx)
+        
+        this.allKeys.removeAt(lastIdx)
+    }
+
+}
+
+// 92. Unique Word Abbreviation
+class ValidWordAbbr(dictionary: Array<String>) {
+    val allWords = this.populateWithWords(dictionary)
+
+    fun isUnique(word: String): Boolean {
+       val convertedWord: String = this.convertWord(word)
+       
+       if (this.allWords.containsKey(convertedWord) && this.allWords[convertedWord]!! != word) {
+           return false
+       } else {
+           return true
+       }
+    }
+    
+    fun populateWithWords(words: Array<String>): MutableMap<String, String> {
+        val hashMap = mutableMapOf<String, String>()
+        
+        for (word in words) {
+            val convertedWord: String = this.convertWord(word)
+            
+            if (hashMap.containsKey(convertedWord) && hashMap[convertedWord]!! != word) {
+                hashMap.put(convertedWord, "")
+            } else {
+                hashMap.put(convertedWord, word)
+            }
+        }
+        return hashMap
+    }
+    
+    fun convertWord(word: String): String {
+        val lastChar: Char = word.get(word.length-1)
+        return "${word.get(0)}${word.length}${lastChar}"
+    }
+
+}
