@@ -374,3 +374,193 @@ class Solution:
                     root = root.right
         
         return total
+
+# 7. Unique Binary Search Trees
+class Solution:
+    # first ver
+    def numTrees(self, n: int) -> int:
+        return self.find_nums(n, {0: 1})
+    
+    def find_nums(self, n, memo):
+        if n in memo:
+            return memo[n]
+        
+        counter = 0
+        # both ways work
+        # for left in range(n):
+        for left in reversed(range(n)):
+            right = n - left - 1
+            left_counter = self.find_nums(left, memo)
+            right_counter = self.find_nums(right, memo)
+            counter += left_counter * right_counter
+        
+        memo[n] = counter
+        return counter
+
+    # second ver
+    def numTrees(self, n: int) -> int:
+        memo = [1 for _ in range(n + 1)]
+        
+        for nodes in range(2, n + 1):
+            total_nodes = 0
+            for root in range(1, nodes + 1):
+                left_nodes = root - 1
+                right_nodes = nodes - root
+                
+                total_nodes += memo[left_nodes] * memo[right_nodes]
+            
+            memo[nodes] = total_nodes
+        
+        return memo[n]
+
+# 8. Unique Binary Search Trees II
+class Solution:
+    def generateTrees(self, n: int) -> List[Optional[TreeNode]]:
+        return self.rec(1, n) if n else []
+    
+    def rec(self, i, j):
+        if i > j:
+            return [None]
+        
+        trees = []
+        for idx in range(i, j + 1):
+            left_ = self.rec(i, idx - 1)
+            right_ = self.rec(idx + 1, j)
+            for l in left_:
+                for r in right_:
+                    node = TreeNode(idx)
+                    node.left = l
+                    node.right = r
+                    trees.append(node)
+        
+        return trees
+
+# 9. Find Winner on a Tic Tac Toe Game
+class Solution:
+    # brute-force
+    def tictactoe(self, moves: List[List[int]]) -> str:
+        n = 3
+        board = [[0] * n for _ in range(n)]
+        
+        player = 1
+        
+        for move in moves:
+            row, col = move
+            board[row][col] = player
+            
+            if self._check_row(row, player, board) or\
+                self._check_col(col, player, board) or\
+                (row == col and self._check_diag(player, board)) or\
+                (row + col == n - 1 and self._check_anti_diag(player, board)):
+                    return 'A' if player == 1 else 'B'
+            
+            player *= -1
+        
+        return "Draw" if len(moves) == 9 else "Pending"
+        
+    def _check_row(self, row, pl, board) -> bool:
+        for c in range(3):
+            if board[row][c] != pl:
+                return False
+            
+        return True
+    
+    def _check_col(self, col, pl, board) -> bool:
+        for r in range(3):
+            if board[r][col] != pl:
+                return False
+        
+        return True
+    
+    def _check_diag(self, pl, board) -> bool:
+        for r in range(3):
+            if board[r][r] != pl:
+                return False
+        
+        return True
+    
+    def _check_anti_diag(self, pl, board) -> bool:
+        for r in range(3):
+            if board[r][3-1-r] != pl:
+                return False
+        
+        return True
+
+    # optimal
+    def tictactoe(self, moves: List[List[int]]) -> str:
+        """
+        1. Calc. sum for every row/col/diag
+        2. As players have the opposing figures, it's very convenient
+        3. Each col/row set has up to 3 -> nested
+        """
+        n = 3
+        
+        player = 1
+        
+        rows, cols = [0] * n, [0] * n
+        diag = anti_diag = 0
+        
+        for move in moves:
+            row, col = move
+            
+            rows[row] += player
+            cols[col] += player
+            
+            if row == col:
+                diag += player
+            if row + col == n - 1:
+                anti_diag += player
+            
+            result: bool = self._find_result(
+                rows[row], cols[col], diag, anti_diag, n
+            )
+                
+            if result:
+                return "A" if player == 1 else "B"
+            
+            player *= -1
+        
+        return "Draw" if len(moves) == n * n else "Pending"
+    
+    def _find_result(self, row, col, diag, anti_diag, n) -> bool:
+        return any(map(lambda x: abs(x) == n, [row, col, diag, anti_diag]))
+
+# 10. 4 Sum
+class Solution:
+    def fourSum(self, nums: List[int], target: int) -> List[List[int]]:
+        def k_sum(k: int, start: int, target: int):
+            if k != 2:
+                for i in range(start, len(nums) - k + 1):
+                    # why ` - k` ? If k is 4 -> take first and
+                    # allow 3 others to be taken after to form a quad
+                    
+                    # below: if 2 nums are duplicated, but placed to each other -> Ok
+                    # but if at least 1 index diff -> enter
+                    if i > start and nums[i] == nums[i-1]:
+                        continue
+
+                    quad.append(nums[i])
+                    k_sum(k-1, i+1, target-nums[i])
+                    quad.pop()
+                return
+
+            # base case
+            l, r = start, len(nums) - 1
+            while l < r:
+                if nums[l] + nums[r] < target:
+                    l += 1
+                elif nums[l] + nums[r] > target:
+                    r -= 1
+                else:
+                    results.append(quad + [nums[l], nums[r]])
+                    l += 1
+                    while l < r and nums[l] == nums[l-1]:
+                        l += 1
+
+        nums.sort()
+        results = list()
+        quad = list()
+        
+        k_sum(4, 0, target)
+            
+        return results
